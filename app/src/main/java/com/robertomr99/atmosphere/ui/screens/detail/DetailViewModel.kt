@@ -3,15 +3,18 @@ package com.robertomr99.atmosphere.ui.screens.detail
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.robertomr99.atmosphere.data.WeatherRepository
 import com.robertomr99.atmosphere.data.forecast.CustomList
 import com.robertomr99.atmosphere.data.forecast.ForecastResult
 import com.robertomr99.atmosphere.data.weather.WeatherResult
+import com.robertomr99.atmosphere.data.weather.Wind
+import com.robertomr99.atmosphere.ui.screens.NavigationState
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
@@ -32,38 +35,57 @@ class DetailViewModel : ViewModel() {
     )
 
     private val repository = WeatherRepository()
-    var state by mutableStateOf(UiState())
-        private set
+
+    private val _state = MutableStateFlow(UiState())
+        val state : StateFlow<UiState> = _state.asStateFlow()
 
     var cityName: String = ""
-    var units: String = "metric"
 
-    fun loadCityWeather(city: String, lang: String) {
+    fun loadCityWeather(city: String, region: String, temperatureUnit: String) {
         viewModelScope.launch {
-            state = state.copy(loading = true)
+            _state.value = state.value.copy(loading = true)
             try {
-                val weatherResult = repository.getWeatherForCity(city, units, lang)
-                val forecastResult = repository.getForecastForCity(city, units, lang)
+                val weatherResult = repository.getWeatherForCity(city, temperatureUnit, region)
+                val forecastResult = repository.getForecastForCity(city, temperatureUnit, region)
 
                 if (weatherResult != null && forecastResult != null) {
                     cityName = weatherResult.name ?: city
-                    state = UiState(
+                    delay(500)
+                    _state.value = UiState(
                         loading = false,
                         weatherResult = weatherResult,
                         forecastResult = forecastResult
                     )
                 } else {
-                    state = state.copy(loading = false)
+                    _state.value = state.value.copy(loading = false)
+                    NavigationState.setCityError("No se encontró la ciudad '$city'. Inténtalo de nuevo.")
                 }
             } catch (e: Exception) {
-                state = state.copy(loading = false)
+                _state.value = state.value.copy(loading = false)
+                NavigationState.setCityError("No se encontró la ciudad '$city'. Inténtalo de nuevo.")
             }
         }
     }
 
+    fun getFeelsLikeTemp(): Int? {
+        return state.value.weatherResult.main?.feelsLike?.toInt()
+    }
+
+    fun getHumidity(): Int? {
+        return state.value.weatherResult.main?.humidity
+    }
+
+    fun getWindResult(): Wind? {
+        return state.value.weatherResult.wind
+    }
+
+    fun updateCityFav(isFavCity: Boolean){
+        Log.i("Rob", "isFavCity: $isFavCity cityName: $cityName")
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun getHourlyForecastToday(): List<HourlyForecast> {
-        val list = getHourlyForecastToday(state.forecastResult)
+        val list = getHourlyForecastToday(state.value.forecastResult)
         Log.d("DetailViewModel", "Hourly forecasts count: ${list.size}")
         return list
     }
@@ -92,7 +114,7 @@ class DetailViewModel : ViewModel() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun getDailyMinMaxForecast(days: Int = 5): List<DailyForecast> {
-        return getDailyMinMaxForecast(state.forecastResult, days)
+        return getDailyMinMaxForecast(state.value.forecastResult, days)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -113,8 +135,8 @@ class DetailViewModel : ViewModel() {
         sortedDays.forEach { date ->
             val forecastsForDay = dailyGroups[date] ?: emptyList()
 
-            val minTemp = forecastsForDay.minOfOrNull { it.main?.tempMin ?: Double.MAX_VALUE }?.toInt() ?: 0
-            val maxTemp = forecastsForDay.maxOfOrNull { it.main?.tempMax ?: Double.MIN_VALUE }?.toInt() ?: 0
+            val minTemp = forecastsForDay.minOfOrNull { it.main?.tempMin ?: Double.MIN_VALUE }?.toInt() ?: 0
+            val maxTemp = forecastsForDay.maxOfOrNull { it.main?.tempMax ?: Double.MAX_VALUE }?.toInt() ?: 0
             val weatherIcon = forecastsForDay.firstOrNull()?.weather?.firstOrNull()?.icon ?: "01d"
 
             val dayName = when {
@@ -164,4 +186,5 @@ class DetailViewModel : ViewModel() {
         val temperature: Int,
         val weatherIcon: String
     )
+
 }

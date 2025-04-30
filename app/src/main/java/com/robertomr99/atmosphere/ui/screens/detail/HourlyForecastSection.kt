@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.robertomr99.atmosphere.ui.common.SectionWithTransparentBackground
 import com.robertomr99.atmosphere.ui.common.getWeatherIcon
@@ -34,6 +35,7 @@ fun HourlyForecastSection(hourlyForecasts: List<DetailViewModel.HourlyForecast>)
                 text = "Próximas horas",
                 style = MaterialTheme.typography.titleMedium,
                 color = Color.White,
+                fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
@@ -73,7 +75,7 @@ private fun HourlyForecastItem(forecast: DetailViewModel.HourlyForecast) {
         )
         Text(
             text = "${forecast.temperature}°",
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.bodyMedium,
             color = Color.White
         )
     }

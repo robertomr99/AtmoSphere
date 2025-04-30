@@ -19,7 +19,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -31,6 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.robertomr99.atmosphere.R
@@ -41,10 +44,12 @@ import java.util.Locale
 fun SearchFieldWithVoice(
     city: String,
     onCityChange: (String) -> Unit,
-    onSearch: (String) -> Unit
+    onSearch: (String) -> Unit,
+    errorMessage: String? = null
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val ctx = LocalContext.current
+    val isError = (!errorMessage.isNullOrEmpty())
 
     var shouldRequestPermission by remember { mutableStateOf(false) }
 
@@ -84,15 +89,19 @@ fun SearchFieldWithVoice(
             .padding(horizontal = 16.dp),
         label = { Text(
                     text ="Buscar ciudad",
-                    color = Color.Black
-                    )
-                },
-        placeholder = { Text("Escribe el nombre de la ciudad") },
+                    color = if (isError) Color.Red else Color.White,
+                    style =  MaterialTheme.typography.labelMedium,
+        )},
+        placeholder = { Text(
+            text = "Escribe el nombre de la ciudad",
+            color = if (isError) Color.Red else Color.White,
+            style =  MaterialTheme.typography.bodyMedium,
+        )},
         leadingIcon = {
             Icon(
                 imageVector = Icons.Default.Search,
                 contentDescription = "Icono de búsqueda",
-                tint = Color.Gray
+                tint = Color.White
             )
         },
         trailingIcon = {
@@ -114,11 +123,12 @@ fun SearchFieldWithVoice(
                 Icon(
                     painter = painterResource(id = R.drawable.microphone),
                     contentDescription = "Búsqueda por voz",
-                    tint = Color.Black
+                    tint = Color.White
                 )
             }
         },
 
+        isError = isError,
         shape = RoundedCornerShape(8.dp),
         singleLine = true,
         keyboardOptions = KeyboardOptions(
@@ -129,6 +139,20 @@ fun SearchFieldWithVoice(
                 onSearch(city)
                 keyboardController?.hide()
             }
+        ),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedTextColor = if (isError) Color.Red else Color.White,
+            unfocusedTextColor = if (isError) Color.Red else Color.White,
+            focusedBorderColor = if (isError) Color.Red else Color(0xFF87CEEB),
+            unfocusedBorderColor = if (isError) Color.Red else Color(0xFF87CEEB),
+            cursorColor = if (isError) Color.Red else Color.White,
+            focusedLabelColor = if (isError) Color.Red else Color.White,
+            unfocusedLabelColor = if (isError) Color.Red else Color.White,
+            focusedContainerColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent
+        ),
+        textStyle = TextStyle(
+            color = if (isError) Color.Red else Color.White
         )
     )
 }

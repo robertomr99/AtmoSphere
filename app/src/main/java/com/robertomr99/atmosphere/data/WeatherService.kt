@@ -15,11 +15,25 @@ interface WeatherService {
         @Query("lang") lang: String
     ): WeatherResult
 
+    @GET("weather")
+    suspend fun fetchWeatherUnitDefault(
+        @Query("lat") lat: Double,
+        @Query("lon") lon: Double,
+        @Query("lang") lang: String
+    ): WeatherResult
+
     @GET("forecast")
     suspend fun fetchForecast(
         @Query("lat") lat: Double,
         @Query("lon") lon: Double,
         @Query("units") units: String,
+        @Query("lang") lang: String
+    ): ForecastResult
+
+    @GET("forecast")
+    suspend fun fetchForecastUnitDefault(
+        @Query("lat") lat: Double,
+        @Query("lon") lon: Double,
         @Query("lang") lang: String
     ): ForecastResult
 }
