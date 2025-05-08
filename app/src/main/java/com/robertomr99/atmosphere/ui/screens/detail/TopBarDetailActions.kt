@@ -22,7 +22,6 @@ fun TopBarDetailActions(
                 }else{
                     detailState.setFavoriteCity(true)
                 }
-                onFavClick(detailState.isFavorite)
             }
         ) {
             val favIcon = if(detailState.isFavorite){

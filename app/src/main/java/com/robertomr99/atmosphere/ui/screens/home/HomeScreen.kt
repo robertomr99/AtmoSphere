@@ -1,5 +1,6 @@
 package com.robertomr99.atmosphere.ui.screens.home
 
+import android.Manifest
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideOutHorizontally
@@ -36,8 +37,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.robertomr99.atmosphere.R
+import com.robertomr99.atmosphere.ui.common.PermissionRequestEffect
 import com.robertomr99.atmosphere.ui.screens.NavigationState
 import com.robertomr99.atmosphere.ui.theme.AtmoSphereTheme
 import kotlinx.coroutines.delay
@@ -56,12 +57,12 @@ fun Screen(content: @Composable () -> Unit) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    onClick: (String, String, String) -> Unit,
-    vm: HomeViewModel = viewModel()
+    onClick: (String,String) -> Unit,
+    vm: HomeViewModel
 ) {
     key(Unit) {
         val appName = stringResource(id = R.string.app_name)
-        var appBarTitle by remember { mutableStateOf(appName) }
+        val appBarTitle by remember { mutableStateOf(appName) }
         val state by vm.state.collectAsState()
         val homeState = rememberHomeState()
         val errorMessage by NavigationState.cityError.collectAsState()
@@ -70,11 +71,14 @@ fun HomeScreen(
             NavigationState.clearCityError()
         }
 
-        homeState.AskRegionEffect { region ->
-            vm.setRegion(region)
-            appBarTitle += " $region"
+        PermissionRequestEffect(permission = Manifest.permission.ACCESS_COARSE_LOCATION) {
             vm.loadFavsCitiesWeather()
         }
+
+      /*  homeState.AskRegionEffect { region ->
+            appBarTitle += " $region"
+            vm.loadFavsCitiesWeather()
+        }*/
 
         Screen {
             Scaffold(
@@ -131,7 +135,7 @@ fun HomeScreen(
                         SearchFieldWithVoice(
                             city = city,
                             onCityChange = { city = it },
-                            onSearch = { query -> onClick(query, vm.region.value, unitsMapper(vm.temperatureUnit.value))},
+                            onSearch = { query -> onClick(query, unitsMapper(vm.temperatureUnit.value))},
                             errorMessage = errorMessage
                         )
 
@@ -169,7 +173,7 @@ fun HomeScreen(
                                     WeatherCardWithImageAndGradient(
                                         cityWeather = cityWeather,
                                         onClick = {
-                                            onClick(cityWeather.name, vm.region.value, unitsMapper(vm.temperatureUnit.value))
+                                            onClick(cityWeather.name, unitsMapper(vm.temperatureUnit.value))
                                         },
                                         onDelete = { visible = false },
                                     )

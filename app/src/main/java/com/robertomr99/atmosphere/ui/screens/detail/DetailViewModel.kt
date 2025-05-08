@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.robertomr99.atmosphere.data.CityEntity
 import com.robertomr99.atmosphere.data.WeatherRepository
 import com.robertomr99.atmosphere.data.forecast.CustomList
 import com.robertomr99.atmosphere.data.forecast.ForecastResult
@@ -26,7 +27,9 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-class DetailViewModel : ViewModel() {
+class DetailViewModel(
+    private val repository: WeatherRepository
+) : ViewModel() {
 
     data class UiState(
         val loading: Boolean = false,
@@ -34,22 +37,20 @@ class DetailViewModel : ViewModel() {
         val forecastResult: ForecastResult = ForecastResult()
     )
 
-    private val repository = WeatherRepository()
-
     private val _state = MutableStateFlow(UiState())
         val state : StateFlow<UiState> = _state.asStateFlow()
 
     var cityName: String = ""
 
-    fun loadCityWeather(city: String, region: String, temperatureUnit: String) {
+    fun loadCityWeather(city: String, temperatureUnit: String) {
+        cityName = city
         viewModelScope.launch {
             _state.value = state.value.copy(loading = true)
             try {
-                val weatherResult = repository.getWeatherForCity(city, temperatureUnit, region)
-                val forecastResult = repository.getForecastForCity(city, temperatureUnit, region)
+                val weatherResult = repository.getWeatherForCity(city, temperatureUnit)
+                val forecastResult = repository.getForecastForCity(city, temperatureUnit)
 
                 if (weatherResult != null && forecastResult != null) {
-                    cityName = weatherResult.name ?: city
                     delay(500)
                     _state.value = UiState(
                         loading = false,
@@ -80,7 +81,9 @@ class DetailViewModel : ViewModel() {
     }
 
     fun updateCityFav(isFavCity: Boolean){
-        Log.i("Rob", "isFavCity: $isFavCity cityName: $cityName")
+       viewModelScope.launch {
+           repository.saveFavouriteCity(CityEntity( 0,cityName, isFavCity))
+       }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

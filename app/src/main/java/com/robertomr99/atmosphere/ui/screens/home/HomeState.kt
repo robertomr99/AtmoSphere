@@ -1,6 +1,5 @@
 package com.robertomr99.atmosphere.ui.screens.home
 
-import android.Manifest
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
@@ -11,14 +10,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import com.robertomr99.atmosphere.ui.common.PermissionRequestEffect
-import com.robertomr99.atmosphere.ui.common.getRegion
-import kotlinx.coroutines.launch
 
 class HomeState @OptIn(ExperimentalMaterial3Api::class) constructor(
     val scrollBehavior: TopAppBarScrollBehavior,
@@ -30,7 +24,6 @@ class HomeState @OptIn(ExperimentalMaterial3Api::class) constructor(
         )
     )
 ) {
-    private var region by mutableStateOf("")
 
     var menuExpanded by mutableStateOf(false)
         private set
@@ -56,21 +49,6 @@ class HomeState @OptIn(ExperimentalMaterial3Api::class) constructor(
                     duration = SnackbarDuration.Short
                 )
                 onMessageShow()
-            }
-        }
-    }
-
-    @Composable
-    fun AskRegionEffect(
-        onRegion: (String) -> Unit
-    ) {
-        val ctx = LocalContext.current
-        val coroutineScope = rememberCoroutineScope()
-
-        PermissionRequestEffect(permission = Manifest.permission.ACCESS_COARSE_LOCATION) { granted ->
-            coroutineScope.launch {
-                region = if(granted)  ctx.getRegion() else "ES"
-                onRegion(region)
             }
         }
     }

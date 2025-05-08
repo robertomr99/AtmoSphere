@@ -10,7 +10,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class HomeViewModel : ViewModel() {
+class HomeViewModel(
+    private val repository: WeatherRepository
+) : ViewModel() {
 
     data class UiState(
         val loading: Boolean = false,
@@ -25,21 +27,6 @@ class HomeViewModel : ViewModel() {
 
     private val _region = MutableStateFlow("ES")
     val region : StateFlow<String> = _region.asStateFlow()
-
-    private val repository = WeatherRepository()
-
-    private val cities = mutableListOf(
-        "London",
-        "New York",
-        "Tokyo",
-        "Sydney",
-        "Paris",
-        "Moscow",
-        "São Paulo",
-        "Dubai",
-        "Cape Town",
-        "Toronto",
-    )
 
     init {
         observeTemperatureUnit()
@@ -58,13 +45,8 @@ class HomeViewModel : ViewModel() {
         viewModelScope.launch {
             _state.value = state.value.copy(loading = true)
             try {
-                val weatherResult: MutableList<FavCityPreviewWeather> = mutableListOf()
-                cities.forEach {
-                    val weatherCity = repository.getWeatherForCity(it, unitsMapper(_temperatureUnit.value), _region.value)
-                    weatherCity?.let { result ->
-                        weatherResult.add(favCityPreviewWeatherMapper(result))
-                    }
-                }
+                val weatherCities = repository.getWeatherForFavouritesCities(unitsMapper(_temperatureUnit.value))
+                val weatherResult: MutableList<FavCityPreviewWeather> = favCityPreviewWeatherMapper(weatherCities)
                 _state.value = UiState(
                     loading = false,
                     favCitiesWeatherResult = weatherResult.toList()
@@ -87,7 +69,10 @@ class HomeViewModel : ViewModel() {
         _state.value = _state.value.copy(
             favCitiesWeatherResult = _state.value.favCitiesWeatherResult.filterNot { it.name == cityName }
         )
-        cities.remove(cityName)
+
+        viewModelScope.launch {
+            repository.deleteFavouriteCity(cityName)
+        }
     }
 
     data class FavCityPreviewWeather(
@@ -100,15 +85,20 @@ class HomeViewModel : ViewModel() {
     )
 
     @SuppressLint("DefaultLocale")
-    fun favCityPreviewWeatherMapper(cityWeather : WeatherResult) : FavCityPreviewWeather{
-        return FavCityPreviewWeather(
-            name = cityWeather.name ?: "",
-            weatherId = cityWeather.weather.firstOrNull()?.id ?: 0,
-            temp = String.format("%.0f", cityWeather.main?.temp) ,
-            minTemp = String.format("%.0f", cityWeather.main?.tempMin) ,
-            maxTemp = String.format("%.0f", cityWeather.main?.tempMax),
-            description = cityWeather.weather.firstOrNull()?.description?.replaceFirstChar { it.uppercase() } ?: ""
-        )
+    fun favCityPreviewWeatherMapper(listOfcityWeather : List<WeatherResult>) : MutableList<FavCityPreviewWeather>{
+        val listOfFavCityPreviewWeather = mutableListOf<FavCityPreviewWeather>()
+        listOfcityWeather.forEach{ cityWeather ->
+            FavCityPreviewWeather(
+                name = cityWeather.name ?: "",
+                weatherId = cityWeather.weather.firstOrNull()?.id ?: 0,
+                temp = String.format("%.0f", cityWeather.main?.temp) ,
+                minTemp = String.format("%.0f", cityWeather.main?.tempMin) ,
+                maxTemp = String.format("%.0f", cityWeather.main?.tempMax),
+                description = cityWeather.weather.firstOrNull()?.description?.replaceFirstChar { it.uppercase() } ?: ""
+            ).also {
+                listOfFavCityPreviewWeather.add(it)
+            }
+        }
+        return listOfFavCityPreviewWeather
     }
-
 }

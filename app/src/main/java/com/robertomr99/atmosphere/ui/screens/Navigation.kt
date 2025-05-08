@@ -8,25 +8,35 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.robertomr99.atmosphere.App
+import com.robertomr99.atmosphere.data.RegionRepository
+import com.robertomr99.atmosphere.data.WeatherRepository
+import com.robertomr99.atmosphere.data.datasource.LocationDataSource
+import com.robertomr99.atmosphere.data.datasource.RegionDataSource
+import com.robertomr99.atmosphere.data.datasource.WeatherDataSource
+import com.robertomr99.atmosphere.data.datasource.local.CityLocalDataSource
 import com.robertomr99.atmosphere.ui.screens.detail.DetailScreen
+import com.robertomr99.atmosphere.ui.screens.detail.DetailViewModel
 import com.robertomr99.atmosphere.ui.screens.home.HomeScreen
+import com.robertomr99.atmosphere.ui.screens.home.HomeViewModel
 
 sealed class NavScreen(val route: String) {
     data object Home: NavScreen("home")
-    data object Detail: NavScreen("detail/{${NavArgs.City.key}}/{${NavArgs.Region.key}}/{${NavArgs.TemperatureUnit.key}}") {
-        fun createRoute(city: String, region: String, temperatureUnit: String) =
-            "detail/$city/$region/$temperatureUnit"
+    data object Detail: NavScreen("detail/{${NavArgs.City.key}}/{${NavArgs.TemperatureUnit.key}}") {
+        fun createRoute(city: String, temperatureUnit: String) =
+            "detail/$city/$temperatureUnit"
     }
 }
 
 enum class NavArgs(val key: String){
     City("city"),
-    Region("region"),
     TemperatureUnit("temperatureUnit")
 }
 
@@ -56,6 +66,17 @@ val popExitTransition = slideOutHorizontally(
 @Composable
 fun Navigation(){
     val navController = rememberNavController()
+    val app = LocalContext.current.applicationContext as App
+    val weatherRepository = WeatherRepository(
+        RegionRepository(
+            RegionDataSource(
+                app = app,
+                locationDataSource = LocationDataSource(app)
+            )
+        ),
+        WeatherDataSource(),
+        CityLocalDataSource(app.db.cityDao())
+    )
 
     NavHost(navController = navController, startDestination = NavScreen.Home.route){
 
@@ -68,9 +89,17 @@ fun Navigation(){
                 fadeIn(animationSpec = tween(TRANSITION_DURATION))
             }
         ){
-            HomeScreen(onClick = { city, region, temperatureUnit ->
-                navController.navigate(NavScreen.Detail.createRoute(city, region, temperatureUnit))
-            })
+            HomeScreen(
+                onClick = { city, temperatureUnit ->
+                    navController.navigate(
+                        NavScreen.Detail.createRoute(
+                            city,
+                            temperatureUnit
+                        )
+                    )
+                },
+                vm = viewModel { HomeViewModel(weatherRepository) }
+            )
         }
 
         composable(
@@ -81,22 +110,20 @@ fun Navigation(){
             popExitTransition = { popExitTransition },
             arguments = listOf(
                 navArgument(NavArgs.City.key) {type = NavType.StringType},
-                navArgument(NavArgs.Region.key) {type = NavType.StringType},
                 navArgument(NavArgs.TemperatureUnit.key) {type = NavType.StringType}
             )
 
         ){ backStackEntry ->
             val city = backStackEntry.arguments?.getString(NavArgs.City.key)
-            val region = backStackEntry.arguments?.getString(NavArgs.Region.key)
             val temperatureUnit = backStackEntry.arguments?.getString(NavArgs.TemperatureUnit.key)
 
             DetailScreen(
                 cityName = city!!,
-                region = region!!,
                 temperatureUnit = temperatureUnit!!,
                 onBack = {
                     navController.popBackStack()
-                }
+                },
+                vm = viewModel{DetailViewModel(weatherRepository)}
             )
         }
     }

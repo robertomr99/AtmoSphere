@@ -56,10 +56,9 @@ fun Screen(content: @Composable () -> Unit) {
 @Composable
 fun DetailScreen(
     cityName: String,
-    region: String,
     temperatureUnit: String,
     onBack: () -> Unit,
-    vm: DetailViewModel = viewModel()
+    vm: DetailViewModel
 ) {
     key(cityName) {
         val state by vm.state.collectAsState()
@@ -74,7 +73,7 @@ fun DetailScreen(
 
         LaunchedEffect(cityName) {
             if (cityName.isNotBlank()) {
-                vm.loadCityWeather(cityName, region, temperatureUnit)
+                vm.loadCityWeather(cityName, temperatureUnit)
             }
         }
 
