@@ -1,4 +1,4 @@
-package com.robertomr99.atmosphere.ui.screens.detail
+package com.robertomr99.atmosphere.ui.screens.detail.sections
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement

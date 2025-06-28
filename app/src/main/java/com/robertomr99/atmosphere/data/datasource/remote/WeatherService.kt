@@ -1,4 +1,4 @@
-package com.robertomr99.atmosphere.data
+package com.robertomr99.atmosphere.data.datasource.remote
 
 import com.robertomr99.atmosphere.data.forecast.ForecastResult
 import com.robertomr99.atmosphere.data.weather.WeatherResult

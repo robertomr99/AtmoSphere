@@ -18,7 +18,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -32,12 +31,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.robertomr99.atmosphere.ui.common.AcScaffold
 import com.robertomr99.atmosphere.ui.common.getWeatherAnimation
 import com.robertomr99.atmosphere.ui.screens.NavigationState
+import com.robertomr99.atmosphere.ui.screens.detail.sections.DailyForecastSection
+import com.robertomr99.atmosphere.ui.screens.detail.sections.FeelsLikeTempSection
+import com.robertomr99.atmosphere.ui.screens.detail.sections.HourlyForecastSection
+import com.robertomr99.atmosphere.ui.screens.detail.sections.HumiditySection
+import com.robertomr99.atmosphere.ui.screens.detail.sections.WeatherTitleSection
+import com.robertomr99.atmosphere.ui.screens.detail.sections.WindSection
 import com.robertomr99.atmosphere.ui.theme.AtmoSphereTheme
+import com.robertomr99.atmosphere.Result
 
 @Composable
 fun Screen(content: @Composable () -> Unit) {
@@ -56,14 +65,12 @@ fun Screen(content: @Composable () -> Unit) {
 @Composable
 fun DetailScreen(
     cityName: String,
-    region: String,
     temperatureUnit: String,
     onBack: () -> Unit,
     vm: DetailViewModel = viewModel()
 ) {
     key(cityName) {
-        val state by vm.state.collectAsState()
-        val detailState = rememberDetailState()
+        val stateValue by vm.state.collectAsState()
         val isError by NavigationState.cityError.collectAsState()
 
         LaunchedEffect(isError) {
@@ -74,64 +81,88 @@ fun DetailScreen(
 
         LaunchedEffect(cityName) {
             if (cityName.isNotBlank()) {
-                vm.loadCityWeather(cityName, region, temperatureUnit)
+                vm.loadCityWeather(cityName, temperatureUnit)
             }
         }
 
         Screen {
-            Box(modifier = Modifier.fillMaxSize()) {
-                if (!state.loading && state.weatherResult.weather.isNotEmpty()) {
-                    val weatherId = state.weatherResult.weather.firstOrNull()?.id ?: 0
-                    val backgroundComposable = getWeatherAnimation(weatherId)
-                    backgroundComposable()
+            val detailState = rememberDetailState(
+                isFavCity = when (val currentState = stateValue) {
+                    is Result.Success -> currentState.data.isFavCity
+                    else -> false
                 }
+            )
 
-                Scaffold(
-                    modifier = Modifier.nestedScroll(detailState.scrollBehavior.nestedScrollConnection),
-                    topBar = {
-                        TopAppBar(
-                            title = { Text(
-                                text = vm.cityName,
-                                fontSize = 18.sp
-                            ) },
-                            scrollBehavior = detailState.scrollBehavior,
-                            colors = TopAppBarDefaults.topAppBarColors(
-                                containerColor = Color.DarkGray.copy(alpha = 0.3f),
-                                titleContentColor = Color.White,
-                                navigationIconContentColor = Color.White
-                            ),
-                            navigationIcon = {
-                                IconButton(onClick = onBack) {
-                                    Icon(
-                                        imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                                        contentDescription = "Back"
-                                    )
-                                }
-                            },
-                            actions = {
-                                TopBarDetailActions(
-                                    detailState,
-                                    onFavClick = {
-                                        vm.updateCityFav(it)
-                                    }
+            AcScaffold(
+                state = stateValue,
+                modifier = Modifier.nestedScroll(detailState.scrollBehavior.nestedScrollConnection),
+                topBar = {
+                    TopAppBar(
+                        title = {
+                            Text(
+                                text = "${vm.cityName}, ${vm.country}",
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                fontSize = 18.sp,
+                            )
+                        },
+                        scrollBehavior = detailState.scrollBehavior,
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = Color.DarkGray.copy(alpha = 0.3f),
+                            titleContentColor = Color.White,
+                            navigationIconContentColor = Color.White
+                        ),
+                        navigationIcon = {
+                            IconButton(onClick = onBack) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                                    contentDescription = "Back"
                                 )
                             }
-                        )
-                    },
-                    containerColor = Color.Transparent
-                ) { paddingValues ->
-                    if (state.loading) {
-                        ShimmerCityDetail()
-                    } else {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(paddingValues)
-                                .verticalScroll(detailState.scrollState),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                        ) {
-                            DetailScreenGroup(state, vm, temperatureUnit)
+                        },
+                        actions = {
+                            TopBarDetailActions(
+                                detailState,
+                                onFavClick = { isFav ->
+                                    vm.updateCityFav(isFav)
+                                }
+                            )
                         }
+                    )
+                },
+                containerColor = Color.Transparent,
+                loadingContent = {
+                    ShimmerCityDetail()
+                },
+                errorContent = { paddingValues, errorMessage ->
+                    Box(
+                        modifier = Modifier.fillMaxSize().padding(paddingValues),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Error al cargar los datos del clima: $errorMessage",
+                            color = Color.White,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+                }
+            ) { paddingValues, weatherData ->
+                Box(modifier = Modifier.fillMaxSize()) {
+                    if (weatherData.weatherResult.weather.isNotEmpty()) {
+                        val weatherId = weatherData.weatherResult.weather.firstOrNull()?.id ?: 0
+                        val backgroundComposable = getWeatherAnimation(weatherId)
+                        backgroundComposable()
+                    }
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues)
+                            .verticalScroll(detailState.scrollState),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        DetailScreenGroup(weatherData, vm, temperatureUnit)
                     }
                 }
             }
@@ -139,15 +170,14 @@ fun DetailScreen(
     }
 }
 
-
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 private fun DetailScreenGroup(
-    state: DetailViewModel.UiState,
+    weatherData: DetailViewModel.WeatherData,
     vm: DetailViewModel,
     temperatureUnit: String
 ) {
-    WeatherTitleSection(state)
+    WeatherTitleSection(weatherData.weatherResult)
     HourlyForecastSection(vm.getHourlyForecastToday())
     DailyForecastSection(vm.getDailyMinMaxForecast(), temperatureUnit)
 

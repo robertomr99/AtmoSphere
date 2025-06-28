@@ -10,12 +10,20 @@ import com.robertomr99.atmosphere.data.forecast.CustomList
 import com.robertomr99.atmosphere.data.forecast.ForecastResult
 import com.robertomr99.atmosphere.data.weather.WeatherResult
 import com.robertomr99.atmosphere.data.weather.Wind
+import com.robertomr99.atmosphere.stateAsResultIn
 import com.robertomr99.atmosphere.ui.screens.NavigationState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -25,76 +33,160 @@ import java.time.format.TextStyle
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import com.robertomr99.atmosphere.Result
+import kotlinx.coroutines.flow.emptyFlow
 
-class DetailViewModel : ViewModel() {
+class DetailViewModel(
+    private val repository: WeatherRepository
+) : ViewModel() {
 
-    data class UiState(
-        val loading: Boolean = false,
-        val weatherResult: WeatherResult = WeatherResult(),
-        val forecastResult: ForecastResult = ForecastResult()
+    data class WeatherData(
+        val weatherResult: WeatherResult,
+        val forecastResult: ForecastResult,
+        val isFavCity: Boolean
     )
 
-    private val repository = WeatherRepository()
-
-    private val _state = MutableStateFlow(UiState())
-        val state : StateFlow<UiState> = _state.asStateFlow()
+    data class LoadParams(
+        val city: String,
+        val temperatureUnit: String
+    )
 
     var cityName: String = ""
+        private set
+    var country: String = ""
+        private set
+    var temperatureUnit: String = ""
+        private set
 
-    fun loadCityWeather(city: String, region: String, temperatureUnit: String) {
-        viewModelScope.launch {
-            _state.value = state.value.copy(loading = true)
-            try {
-                val weatherResult = repository.getWeatherForCity(city, temperatureUnit, region)
-                val forecastResult = repository.getForecastForCity(city, temperatureUnit, region)
+    private val _loadTrigger = MutableStateFlow<LoadParams?>(null)
 
-                if (weatherResult != null && forecastResult != null) {
-                    cityName = weatherResult.name ?: city
-                    delay(500)
-                    _state.value = UiState(
-                        loading = false,
-                        weatherResult = weatherResult,
-                        forecastResult = forecastResult
-                    )
-                } else {
-                    _state.value = state.value.copy(loading = false)
-                    NavigationState.setCityError("No se encontró la ciudad '$city'. Inténtalo de nuevo.")
-                }
-            } catch (e: Exception) {
-                _state.value = state.value.copy(loading = false)
-                NavigationState.setCityError("No se encontró la ciudad '$city'. Inténtalo de nuevo.")
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val state: StateFlow<Result<WeatherData>> = _loadTrigger
+        .flatMapLatest { params ->
+            if (params == null) {
+                emptyFlow()
+            } else {
+                loadWeatherData(params.city, params.temperatureUnit)
             }
+        }
+        .stateAsResultIn(viewModelScope)
+
+    fun loadCityWeather(city: String, temperatureUnit: String) {
+        cityName = city.substringBefore(",").trim()
+        country = city.substringAfter(",").trim()
+        this.temperatureUnit = temperatureUnit
+
+        _loadTrigger.value = LoadParams(city, temperatureUnit)
+    }
+
+    private fun loadWeatherData(city: String, temperatureUnit: String): Flow<WeatherData> = flow {
+        val cityNameParsed = city.substringBefore(",").trim()
+        val countryParsed = city.substringAfter(",").trim()
+
+        val isFavCity = withContext(Dispatchers.IO) {
+            repository.findIfCityIsFav(cityNameParsed, countryParsed).first()
+        } > 0
+
+        val weatherResults = withContext(Dispatchers.IO) {
+            try {
+                repository.getWeatherAndForecastForCity(city, countryParsed, temperatureUnit, isFavCity).first()
+            } catch (e: Exception) {
+                Log.w("DetailViewModel", "Flow cancelled, retrying...")
+                repository.getWeatherAndForecastForCity(city, countryParsed, temperatureUnit, isFavCity).first()
+            }
+        }
+
+        val weather = weatherResults.first
+        val forecast = weatherResults.second
+
+        if (weather != null && forecast != null) {
+            if (forecast.list.isNullOrEmpty()) {
+                Log.w("DetailViewModel", "⚠️ Weather OK but Forecast is empty for $cityNameParsed")
+            } else {
+                Log.d("DetailViewModel", "✅ Both Weather and Forecast OK for $cityNameParsed (${forecast.list.size} items)")
+            }
+
+            delay(500)
+
+            emit(WeatherData(
+                weatherResult = weather.copy(name = cityNameParsed),
+                forecastResult = forecast,
+                isFavCity = isFavCity,
+            ))
+        } else {
+            Log.e("DetailViewModel", "❌ Missing data - Weather: ${weather != null}, Forecast: ${forecast != null}")
+            NavigationState.setCityError("No se encontró la ciudad '$city'. Inténtalo de nuevo.")
+            throw Exception("No se encontró la ciudad '$city'")
         }
     }
 
     fun getFeelsLikeTemp(): Int? {
-        return state.value.weatherResult.main?.feelsLike?.toInt()
+        return when (val currentState = state.value) {
+            is Result.Success -> currentState.data.weatherResult.main?.feelsLike?.toInt()
+            else -> null
+        }
     }
 
     fun getHumidity(): Int? {
-        return state.value.weatherResult.main?.humidity
+        return when (val currentState = state.value) {
+            is Result.Success -> currentState.data.weatherResult.main?.humidity
+            else -> null
+        }
     }
 
     fun getWindResult(): Wind? {
-        return state.value.weatherResult.wind
+        return when (val currentState = state.value) {
+            is Result.Success -> currentState.data.weatherResult.wind
+            else -> null
+        }
     }
 
     fun updateCityFav(isFavCity: Boolean){
-        Log.i("Rob", "isFavCity: $isFavCity cityName: $cityName")
+        viewModelScope.launch(Dispatchers.IO) {
+            when (val currentState = state.value) {
+                is Result.Success -> {
+                    if(isFavCity){
+                        repository.saveFavouriteCity(
+                            flowOf(currentState.data.weatherResult),
+                            flowOf(currentState.data.forecastResult),
+                            temperatureUnit
+                        )
+                    } else {
+                        repository.deleteFavouriteCity(cityName, currentState.data.weatherResult.sys?.country!!)
+                    }
+                }
+                else -> {  }
+            }
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun getHourlyForecastToday(): List<HourlyForecast> {
-        val list = getHourlyForecastToday(state.value.forecastResult)
-        Log.d("DetailViewModel", "Hourly forecasts count: ${list.size}")
-        return list
+        return when (val currentState = state.value) {
+            is Result.Success -> {
+                val list = getHourlyForecastToday(currentState.data.forecastResult)
+                Log.d("DetailViewModel", "Hourly forecasts count: ${list.size}")
+                // ✅ Log adicional para debug
+                if (list.isEmpty()) {
+                    Log.w("DetailViewModel", "⚠️ No hourly forecasts generated from ForecastResult with ${currentState.data.forecastResult.list?.size} items")
+                }
+                list
+            }
+            else -> emptyList()
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun getHourlyForecastToday(forecastResult: ForecastResult?): List<HourlyForecast> {
-        if (forecastResult?.list.isNullOrEmpty()) return emptyList()
+        // ✅ Log del estado inicial
+        Log.d("DetailViewModel", "Processing forecast with ${forecastResult?.list?.size} items")
 
-        return forecastResult!!.list!!.take(10).mapNotNull { forecast ->
+        if (forecastResult?.list.isNullOrEmpty()) {
+            Log.w("DetailViewModel", "ForecastResult list is null or empty")
+            return emptyList()
+        }
+
+        val result = forecastResult!!.list!!.take(10).mapNotNull { forecast ->
             val hour = forecast.dt?.let {
                 Instant.ofEpochSecond(it.toLong())
                     .atZone(ZoneId.systemDefault())
@@ -110,11 +202,17 @@ class DetailViewModel : ViewModel() {
                 weatherIcon = icon
             )
         }
+
+        Log.d("DetailViewModel", "Generated ${result.size} hourly forecasts from ${forecastResult.list!!.size} items")
+        return result
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun getDailyMinMaxForecast(days: Int = 5): List<DailyForecast> {
-        return getDailyMinMaxForecast(state.value.forecastResult, days)
+        return when (val currentState = state.value) {
+            is Result.Success -> getDailyMinMaxForecast(currentState.data.forecastResult, days)
+            else -> emptyList()
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -186,5 +284,4 @@ class DetailViewModel : ViewModel() {
         val temperature: Int,
         val weatherIcon: String
     )
-
 }
