@@ -1,4 +1,4 @@
-package com.robertomr99.atmosphere.ui.screens.detail
+package com.robertomr99.atmosphere.ui.screens.detail.sections
 
 import android.annotation.SuppressLint
 import android.graphics.Paint
@@ -224,24 +224,36 @@ private fun WindCompass(windSpeed: Double, rotationAngle: Float) {
                 .fillMaxSize()
                 .rotate(rotationAngle)
             ) {
-                val arrowLength = size.height * 0.38f
-                val arrowWidth = 5.dp.toPx()
                 val center = Offset(size.width / 2, size.height / 2)
 
+
+                val arrowLength = size.height * 0.14f
+                val arrowHeadWidth = 8.dp.toPx()
+                val arrowBodyWidth = 2.dp.toPx()
+
+                val startDistance = 24.dp.toPx()
+
+                val arrowStartX = center.x
+                val arrowStartY = center.y - startDistance
+
+                val arrowEndX = center.x
+                val arrowEndY = center.y - startDistance - arrowLength
+
                 val path = Path().apply {
-                    moveTo(center.x, center.y - arrowLength)
-                    lineTo(center.x - arrowWidth / 2, center.y - arrowLength + arrowWidth)
-                    lineTo(center.x, center.y - arrowLength + arrowWidth / 2)
-                    lineTo(center.x + arrowWidth / 2, center.y - arrowLength + arrowWidth)
+                    moveTo(arrowEndX, arrowEndY)
+                    lineTo(arrowEndX - arrowHeadWidth / 2, arrowEndY + arrowHeadWidth * 0.7f)
+                    lineTo(arrowEndX, arrowEndY + arrowHeadWidth * 0.4f)
+                    lineTo(arrowEndX + arrowHeadWidth / 2, arrowEndY + arrowHeadWidth * 0.7f)
+                    close()
+
+                    moveTo(arrowStartX - arrowBodyWidth / 2, arrowStartY)
+                    lineTo(arrowStartX + arrowBodyWidth / 2, arrowStartY)
+                    lineTo(arrowEndX + arrowBodyWidth / 2, arrowEndY + arrowHeadWidth * 0.7f)
+                    lineTo(arrowEndX - arrowBodyWidth / 2, arrowEndY + arrowHeadWidth * 0.7f)
                     close()
                 }
-                drawPath(path, Color.White)
 
-                drawCircle(
-                    color = Color.White,
-                    radius = 3.dp.toPx(),
-                    center = Offset(center.x, center.y - arrowLength)
-                )
+                drawPath(path, Color.White)
             }
         }
     }

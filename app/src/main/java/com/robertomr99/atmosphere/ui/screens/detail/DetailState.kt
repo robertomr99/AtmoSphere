@@ -14,9 +14,10 @@ import androidx.compose.runtime.setValue
 class DetailState @OptIn(ExperimentalMaterial3Api::class) constructor(
     val scrollBehavior : TopAppBarScrollBehavior,
     val scrollState : ScrollState,
+    isFavCity: Boolean = false
 ){
 
-    var isFavorite by mutableStateOf(false)
+    var isFavorite by mutableStateOf(isFavCity)
         private set
 
     fun setFavoriteCity(favorite: Boolean) {
@@ -31,7 +32,8 @@ class DetailState @OptIn(ExperimentalMaterial3Api::class) constructor(
 fun rememberDetailState(
     scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(),
     scrollState: ScrollState = rememberScrollState(),
+    isFavCity: Boolean
 ): DetailState{
 
-    return remember(scrollBehavior, scrollState) { DetailState(scrollBehavior, scrollState) }
+    return remember(scrollBehavior, scrollState, isFavCity) { DetailState(scrollBehavior, scrollState, isFavCity) }
 }

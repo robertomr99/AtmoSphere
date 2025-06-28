@@ -1,5 +1,6 @@
 package com.robertomr99.atmosphere.ui.screens.home
 
+import android.util.Log
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
@@ -13,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import com.robertomr99.atmosphere.ui.common.TemperatureUnit
 
 class HomeState @OptIn(ExperimentalMaterial3Api::class) constructor(
     val scrollBehavior: TopAppBarScrollBehavior,
@@ -49,6 +51,7 @@ class HomeState @OptIn(ExperimentalMaterial3Api::class) constructor(
                     duration = SnackbarDuration.Short
                 )
                 onMessageShow()
+                Log.e("Error city Search", message)
             }
         }
     }
@@ -58,7 +61,11 @@ class HomeState @OptIn(ExperimentalMaterial3Api::class) constructor(
 @Composable
 fun rememberHomeState(
     scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(),
-    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    temperatureUnit: TemperatureUnit = TemperatureUnit.CELSIUS
 ): HomeState {
-    return remember(scrollBehavior, snackbarHostState) { HomeState(scrollBehavior, snackbarHostState) }
+    return remember(scrollBehavior, snackbarHostState)
+    { HomeState(scrollBehavior, snackbarHostState)
+        .apply { setTemperatureUnit(temperatureUnit) }
+    }
 }

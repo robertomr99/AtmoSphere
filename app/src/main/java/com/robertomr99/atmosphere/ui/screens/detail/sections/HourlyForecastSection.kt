@@ -1,4 +1,4 @@
-package com.robertomr99.atmosphere.ui.screens.detail
+package com.robertomr99.atmosphere.ui.screens.detail.sections
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.robertomr99.atmosphere.ui.common.SectionWithTransparentBackground
 import com.robertomr99.atmosphere.ui.common.getWeatherIcon
+import com.robertomr99.atmosphere.ui.screens.detail.DetailViewModel
 
 @Composable
 fun HourlyForecastSection(hourlyForecasts: List<DetailViewModel.HourlyForecast>) {

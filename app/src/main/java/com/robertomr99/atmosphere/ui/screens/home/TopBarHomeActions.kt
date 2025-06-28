@@ -23,20 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.robertomr99.atmosphere.ui.common.TemperatureUnit
 
-enum class TemperatureUnit {
-    CELSIUS,
-    FAHRENHEIT,
-    KELVIN
-}
-
-fun unitsMapper(temperatureUnit: TemperatureUnit): String {
-    return when(temperatureUnit){
-        TemperatureUnit.CELSIUS -> "metric"
-        TemperatureUnit.FAHRENHEIT -> "imperial"
-        TemperatureUnit.KELVIN -> ""
-    }
-}
 
 @Composable
 fun TopBarHomeActions(

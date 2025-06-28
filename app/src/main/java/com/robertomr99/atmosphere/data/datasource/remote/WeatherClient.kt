@@ -14,7 +14,7 @@ import retrofit2.create
 
 object WeatherClient {
 
-    val json = Json {
+    private val json = Json {
         ignoreUnknownKeys = true
         isLenient = true
     }

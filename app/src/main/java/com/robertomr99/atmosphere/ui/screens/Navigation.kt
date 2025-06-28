@@ -21,7 +21,8 @@ import com.robertomr99.atmosphere.data.WeatherRepository
 import com.robertomr99.atmosphere.data.datasource.LocationDataSource
 import com.robertomr99.atmosphere.data.datasource.RegionDataSource
 import com.robertomr99.atmosphere.data.datasource.WeatherDataSource
-import com.robertomr99.atmosphere.data.datasource.local.CityLocalDataSource
+import com.robertomr99.atmosphere.data.datasource.local.DataStoreManager
+import com.robertomr99.atmosphere.data.datasource.local.WeatherLocalDataSource
 import com.robertomr99.atmosphere.ui.screens.detail.DetailScreen
 import com.robertomr99.atmosphere.ui.screens.detail.DetailViewModel
 import com.robertomr99.atmosphere.ui.screens.home.HomeScreen
@@ -75,7 +76,8 @@ fun Navigation(){
             )
         ),
         WeatherDataSource(),
-        CityLocalDataSource(app.db.cityDao())
+        WeatherLocalDataSource(app.db.WeatherDao()),
+        DataStoreManager(app)
     )
 
     NavHost(navController = navController, startDestination = NavScreen.Home.route){

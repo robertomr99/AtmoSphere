@@ -17,11 +17,9 @@ fun TopBarDetailActions(
     Box {
         IconButton(
             onClick = {
-                if(detailState.isFavorite){
-                    detailState.setFavoriteCity(false)
-                }else{
-                    detailState.setFavoriteCity(true)
-                }
+                val newFavoriteState = !detailState.isFavorite
+                detailState.setFavoriteCity(newFavoriteState)
+                onFavClick(newFavoriteState)
             }
         ) {
             val favIcon = if(detailState.isFavorite){

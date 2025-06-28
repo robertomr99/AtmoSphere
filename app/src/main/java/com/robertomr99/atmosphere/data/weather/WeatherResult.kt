@@ -1,5 +1,6 @@
 package com.robertomr99.atmosphere.data.weather
 
+import com.robertomr99.atmosphere.data.WeatherEntity
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -18,5 +19,27 @@ data class WeatherResult(
     @SerialName("id") var id: Int? = null,
     @SerialName("name") var name: String? = null,
     @SerialName("cod") var cod: Int? = null,
-    @SerialName("snow") var snow: Snow? = Snow()
+    @SerialName("snow") var snow: Snow? = Snow(),
+    val temperatureUnit: String ? = null
 )
+
+fun WeatherResult.toEntity(cityId: String): WeatherEntity {
+    return WeatherEntity(
+        cityId = cityId,
+        name = name ?: "",
+        country = sys?.country ?: "",
+        temperatureUnit = this.temperatureUnit ?: "standard",
+        temp = main?.temp,
+        minTemp = main?.tempMin,
+        maxTemp = main?.tempMax,
+        feelsLike = main?.feelsLike,
+        humidity = main?.humidity,
+        speed = wind?.speed,
+        deg = wind?.deg,
+        gust = wind?.gust,
+        weatherId = weather.firstOrNull()?.id,
+        weatherDescription = weather.firstOrNull()?.description ?: ""
+    )
+}
+
+
