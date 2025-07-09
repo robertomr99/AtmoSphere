@@ -14,7 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import com.robertomr99.atmosphere.ui.common.TemperatureUnit
+import com.robertomr99.atmosphere.data.TemperatureUnit
 
 class HomeState @OptIn(ExperimentalMaterial3Api::class) constructor(
     val scrollBehavior: TopAppBarScrollBehavior,

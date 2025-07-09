@@ -1,5 +1,7 @@
 @file:Suppress("UnstableApiUsage")
 
+
+
 pluginManagement {
     repositories {
         google {
@@ -22,4 +24,8 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "AtmoSphere"
+
 include(":app")
+include(":data")
+include(":domain")
+include(":usecases")

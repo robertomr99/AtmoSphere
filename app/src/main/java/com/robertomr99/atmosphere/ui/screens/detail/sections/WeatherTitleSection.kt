@@ -15,7 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.robertomr99.atmosphere.data.weather.WeatherResult
+import com.robertomr99.atmosphere.domain.WeatherResult
 import com.robertomr99.atmosphere.ui.common.SectionWithTransparentBackground
 
 @SuppressLint("DefaultLocale")

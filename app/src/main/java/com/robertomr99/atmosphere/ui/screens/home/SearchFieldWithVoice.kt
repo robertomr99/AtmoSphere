@@ -43,7 +43,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.robertomr99.atmosphere.R
-import com.robertomr99.atmosphere.data.cityCoord.CityCoordinatesResponse
+import com.robertomr99.atmosphere.domain.CityCoordinatesResponse
 import com.robertomr99.atmosphere.ui.common.PermissionRequestEffect
 import java.util.Locale
 
@@ -194,7 +194,7 @@ fun SearchFieldWithVoice(
                                 )
                                 if (suggestion.state != null) {
                                     Text(
-                                        text = suggestion.state,
+                                        text = suggestion.state!!,
                                         color = Color.DarkGray,
                                         style = MaterialTheme.typography.bodySmall
                                     )

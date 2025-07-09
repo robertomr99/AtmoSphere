@@ -34,7 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.robertomr99.atmosphere.R
-import com.robertomr99.atmosphere.data.weather.Wind
+import com.robertomr99.atmosphere.domain.weather.Wind
 import com.robertomr99.atmosphere.ui.common.CompactSectionBackground
 import kotlin.math.cos
 import kotlin.math.sin

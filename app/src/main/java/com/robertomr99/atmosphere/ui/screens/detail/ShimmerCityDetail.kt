@@ -186,6 +186,6 @@ fun ShimmerCityDetail() {
 
 @Composable
 @Preview
-fun previewS(){
+fun PreviewShimmerCityDetail(){
     ShimmerCityDetail()
 }

@@ -1,5 +1,7 @@
 package com.robertomr99.atmosphere.ui.screens
 
+import AndroidLogger
+import android.location.Geocoder
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.tween
@@ -15,18 +17,27 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.google.android.gms.location.LocationServices
 import com.robertomr99.atmosphere.App
-import com.robertomr99.atmosphere.data.RegionRepository
-import com.robertomr99.atmosphere.data.WeatherRepository
-import com.robertomr99.atmosphere.data.datasource.LocationDataSource
-import com.robertomr99.atmosphere.data.datasource.RegionDataSource
-import com.robertomr99.atmosphere.data.datasource.WeatherDataSource
-import com.robertomr99.atmosphere.data.datasource.local.DataStoreManager
-import com.robertomr99.atmosphere.data.datasource.local.WeatherLocalDataSource
+import com.robertomr99.atmosphere.data.repository.RegionRepository
+import com.robertomr99.atmosphere.data.repository.WeatherRepository
+import com.robertomr99.atmosphere.framework.DataStoreManager
+import com.robertomr99.atmosphere.framework.GeocoderRegionDataSource
+import com.robertomr99.atmosphere.framework.PlayServicesLocationDataSource
+import com.robertomr99.atmosphere.framework.WeatherRoomDataSource
+import com.robertomr99.atmosphere.framework.WeatherServerDataSource
+import com.robertomr99.atmosphere.framework.remote.GeoCodingClient
+import com.robertomr99.atmosphere.framework.remote.WeatherClient
 import com.robertomr99.atmosphere.ui.screens.detail.DetailScreen
 import com.robertomr99.atmosphere.ui.screens.detail.DetailViewModel
 import com.robertomr99.atmosphere.ui.screens.home.HomeScreen
 import com.robertomr99.atmosphere.ui.screens.home.HomeViewModel
+import com.robertomr99.atmosphere.usecases.DeleteFavouriteCityUseCase
+import com.robertomr99.atmosphere.usecases.FetchFavouritesCitiesUseCase
+import com.robertomr99.atmosphere.usecases.FetchSuggestionsForCityUseCase
+import com.robertomr99.atmosphere.usecases.FetchWeatherAndForecastUseCase
+import com.robertomr99.atmosphere.usecases.FindFavCityUseCase
+import com.robertomr99.atmosphere.usecases.SaveFavouriteCityUseCase
 
 sealed class NavScreen(val route: String) {
     data object Home: NavScreen("home")
@@ -68,16 +79,22 @@ val popExitTransition = slideOutHorizontally(
 fun Navigation(){
     val navController = rememberNavController()
     val app = LocalContext.current.applicationContext as App
+    val logger = AndroidLogger()
     val weatherRepository = WeatherRepository(
         RegionRepository(
-            RegionDataSource(
-                app = app,
-                locationDataSource = LocationDataSource(app)
+            GeocoderRegionDataSource(
+                geocoder = Geocoder(app),
+                locationDataSource = PlayServicesLocationDataSource(
+                    LocationServices.getFusedLocationProviderClient(
+                        app
+                    )
+                )
             )
         ),
-        WeatherDataSource(),
-        WeatherLocalDataSource(app.db.WeatherDao()),
-        DataStoreManager(app)
+        weatherLocalDataSource = WeatherRoomDataSource(app.db.WeatherDao()),
+        weatherRemoteDataSource = WeatherServerDataSource(GeoCodingClient.instance, WeatherClient.instance),
+        dataStoreManager =  DataStoreManager(app),
+        logger = logger
     )
 
     NavHost(navController = navController, startDestination = NavScreen.Home.route){
@@ -100,7 +117,16 @@ fun Navigation(){
                         )
                     )
                 },
-                vm = viewModel { HomeViewModel(weatherRepository) }
+                vm = viewModel { HomeViewModel(
+                    FetchFavouritesCitiesUseCase(
+                        weatherRepository
+                    ),
+                    FetchSuggestionsForCityUseCase(
+                        weatherRepository
+                    ),
+                    DeleteFavouriteCityUseCase(weatherRepository)
+                    )
+                }
             )
         }
 
@@ -125,7 +151,15 @@ fun Navigation(){
                 onBack = {
                     navController.popBackStack()
                 },
-                vm = viewModel{DetailViewModel(weatherRepository)}
+                vm = viewModel{ DetailViewModel(
+                    FindFavCityUseCase(weatherRepository),
+                    FetchWeatherAndForecastUseCase(
+                        weatherRepository
+                    ),
+                    SaveFavouriteCityUseCase(weatherRepository),
+                    DeleteFavouriteCityUseCase(weatherRepository)
+                    )
+                }
             )
         }
     }

@@ -23,7 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.robertomr99.atmosphere.ui.common.TemperatureUnit
+import com.robertomr99.atmosphere.data.TemperatureUnit
 
 
 @Composable

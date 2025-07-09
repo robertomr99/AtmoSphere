@@ -49,7 +49,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.robertomr99.atmosphere.R
 import com.robertomr99.atmosphere.ui.common.AcScaffold
 import com.robertomr99.atmosphere.ui.common.PermissionRequestEffect
-import com.robertomr99.atmosphere.ui.common.unitsMapper
+import com.robertomr99.atmosphere.data.unitsMapper
 import com.robertomr99.atmosphere.ui.screens.NavigationState
 import com.robertomr99.atmosphere.ui.theme.AtmoSphereTheme
 import kotlinx.coroutines.delay

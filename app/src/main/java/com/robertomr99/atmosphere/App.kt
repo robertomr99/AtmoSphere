@@ -3,7 +3,7 @@ package com.robertomr99.atmosphere
 import android.app.Application
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.robertomr99.atmosphere.data.datasource.database.Database
+import com.robertomr99.atmosphere.framework.database.Database
 
 
 class App : Application(){

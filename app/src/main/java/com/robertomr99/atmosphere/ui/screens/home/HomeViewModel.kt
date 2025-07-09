@@ -5,12 +5,11 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.robertomr99.atmosphere.Result
-import com.robertomr99.atmosphere.data.WeatherRepository
-import com.robertomr99.atmosphere.data.cityCoord.CityCoordinatesResponse
-import com.robertomr99.atmosphere.data.weather.WeatherResult
+import com.robertomr99.atmosphere.domain.CityCoordinatesResponse
+import com.robertomr99.atmosphere.domain.WeatherResult
 import com.robertomr99.atmosphere.stateAsResultIn
-import com.robertomr99.atmosphere.ui.common.TemperatureUnit
-import com.robertomr99.atmosphere.ui.common.unitsMapper
+import com.robertomr99.atmosphere.data.TemperatureUnit
+import com.robertomr99.atmosphere.data.unitsMapper
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,7 +27,9 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
-    private val repository: WeatherRepository
+    private val fetchFavouritesCitiesUseCase: com.robertomr99.atmosphere.usecases.FetchFavouritesCitiesUseCase,
+    private val fetchSuggestionsForCityUseCase: com.robertomr99.atmosphere.usecases.FetchSuggestionsForCityUseCase,
+    private val deleteFavouriteCityUseCase: com.robertomr99.atmosphere.usecases.DeleteFavouriteCityUseCase
 ) : ViewModel() {
 
     private val _temperatureUnit = MutableStateFlow(TemperatureUnit.CELSIUS)
@@ -49,7 +50,7 @@ class HomeViewModel(
         temperatureUnit
     }
         .flatMapLatest { temperatureUnit ->
-            repository.getWeatherForFavouritesCities(unitsMapper(temperatureUnit))
+            fetchFavouritesCitiesUseCase(unitsMapper(temperatureUnit))
                 .map { weatherCities -> favCityPreviewWeatherMapper(weatherCities) }
         }
         .stateAsResultIn(viewModelScope)
@@ -61,7 +62,7 @@ class HomeViewModel(
         .filter { it.length >= 2 }
         .distinctUntilChanged()
         .flatMapLatest { query ->
-            repository.getSuggestionsForCity(query)
+            fetchSuggestionsForCityUseCase(query)
                 .catch { emit(emptyList()) }
         }
         .stateIn(
@@ -81,7 +82,7 @@ class HomeViewModel(
     fun removeCity(cityName: String, country: String) {
         viewModelScope.launch {
             try {
-                repository.deleteFavouriteCity(cityName, country)
+                deleteFavouriteCityUseCase(cityName, country)
                 loadFavsCitiesWeather()
             } catch (e: Exception) {
                 Log.e("HomeViewModel", "Error removing city: ${e.message}")

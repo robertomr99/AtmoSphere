@@ -10,14 +10,16 @@ espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.9.1"
 activityCompose = "1.10.1"
 composeBom = "2025.06.01"
-navigationCompose="2.9.0"
+navigationCompose="2.9.1"
 coil = "2.6.0"
 playServicesLocation = "21.3.0"
 retrofit = "2.11.0"
 kotlinxSerialization = "1.7.3"
 roomKtx = "2.7.2"
 ksp = "2.0.0-1.0.21"
+coroutines = "1.8.0"
 lottie = "6.0.0"
+jetbrainsKotlinJvm = "2.0.0"
 
 
 
@@ -47,6 +49,9 @@ kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 lottie-compose = { module = "com.airbnb.android:lottie-compose", version.ref = "lottie" }
 androidx-room-ktx = {group = "androidx.room", name = "room-ktx", version.ref = "roomKtx"}
 androidx-room-compiler = {group = "androidx.room", name = "room-compiler", version.ref = "roomKtx"}
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
+kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
+kotlinx-coroutines-test =  { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
 
 
 [plugins]
@@ -55,6 +60,7 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinxSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
 
 
 

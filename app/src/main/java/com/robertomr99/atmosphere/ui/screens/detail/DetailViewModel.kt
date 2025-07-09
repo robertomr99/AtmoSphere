@@ -5,11 +5,10 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.robertomr99.atmosphere.data.WeatherRepository
-import com.robertomr99.atmosphere.data.forecast.CustomList
-import com.robertomr99.atmosphere.data.forecast.ForecastResult
-import com.robertomr99.atmosphere.data.weather.WeatherResult
-import com.robertomr99.atmosphere.data.weather.Wind
+import com.robertomr99.atmosphere.Result
+import com.robertomr99.atmosphere.domain.ForecastResult
+import com.robertomr99.atmosphere.domain.WeatherResult
+import com.robertomr99.atmosphere.domain.weather.Wind
 import com.robertomr99.atmosphere.stateAsResultIn
 import com.robertomr99.atmosphere.ui.screens.NavigationState
 import kotlinx.coroutines.Dispatchers
@@ -18,6 +17,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
@@ -33,11 +33,12 @@ import java.time.format.TextStyle
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-import com.robertomr99.atmosphere.Result
-import kotlinx.coroutines.flow.emptyFlow
 
 class DetailViewModel(
-    private val repository: WeatherRepository
+    private val findFavCityUseCase: com.robertomr99.atmosphere.usecases.FindFavCityUseCase,
+    private val fetchWeatherAndForecastUseCase: com.robertomr99.atmosphere.usecases.FetchWeatherAndForecastUseCase,
+    private val saveFavouriteCityUseCase: com.robertomr99.atmosphere.usecases.SaveFavouriteCityUseCase,
+    private val deleteFavouriteCityUseCase: com.robertomr99.atmosphere.usecases.DeleteFavouriteCityUseCase
 ) : ViewModel() {
 
     data class WeatherData(
@@ -84,15 +85,15 @@ class DetailViewModel(
         val countryParsed = city.substringAfter(",").trim()
 
         val isFavCity = withContext(Dispatchers.IO) {
-            repository.findIfCityIsFav(cityNameParsed, countryParsed).first()
+            findFavCityUseCase(cityNameParsed, countryParsed).first()
         } > 0
 
         val weatherResults = withContext(Dispatchers.IO) {
             try {
-                repository.getWeatherAndForecastForCity(city, countryParsed, temperatureUnit, isFavCity).first()
+                fetchWeatherAndForecastUseCase(city, countryParsed, temperatureUnit, isFavCity).first()
             } catch (e: Exception) {
                 Log.w("DetailViewModel", "Flow cancelled, retrying...")
-                repository.getWeatherAndForecastForCity(city, countryParsed, temperatureUnit, isFavCity).first()
+                fetchWeatherAndForecastUseCase(city, countryParsed, temperatureUnit, isFavCity).first()
             }
         }
 
@@ -103,7 +104,7 @@ class DetailViewModel(
             if (forecast.list.isNullOrEmpty()) {
                 Log.w("DetailViewModel", "⚠️ Weather OK but Forecast is empty for $cityNameParsed")
             } else {
-                Log.d("DetailViewModel", "✅ Both Weather and Forecast OK for $cityNameParsed (${forecast.list.size} items)")
+                Log.d("DetailViewModel", "✅ Both Weather and Forecast OK for $cityNameParsed (${forecast.list!!.size} items)")
             }
 
             delay(500)
@@ -146,13 +147,13 @@ class DetailViewModel(
             when (val currentState = state.value) {
                 is Result.Success -> {
                     if(isFavCity){
-                        repository.saveFavouriteCity(
+                        saveFavouriteCityUseCase(
                             flowOf(currentState.data.weatherResult),
                             flowOf(currentState.data.forecastResult),
                             temperatureUnit
                         )
                     } else {
-                        repository.deleteFavouriteCity(cityName, currentState.data.weatherResult.sys?.country!!)
+                        deleteFavouriteCityUseCase(cityName, currentState.data.weatherResult.sys?.country!!)
                     }
                 }
                 else -> {  }
@@ -226,7 +227,7 @@ class DetailViewModel(
             forecast.dt?.let {
                 LocalDateTime.ofEpochSecond(it.toLong(), 0, ZoneOffset.UTC).toLocalDate()
             }
-        }.filterKeys { it != null }.mapValues { it.value } as Map<LocalDate, List<CustomList>>
+        }.filterKeys { it != null }.mapKeys { it.key!! }
 
         val sortedDays = dailyGroups.keys.toList().sorted().take(days)
 
