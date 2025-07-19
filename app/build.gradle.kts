@@ -1,25 +1,21 @@
 import java.util.Properties
 
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlinxSerialization)
     alias(libs.plugins.ksp)
+    id("robertomr99.android.application")
+    id("robertomr99.android.application.compose")
 }
 
 android {
     namespace = "com.robertomr99.atmosphere"
-    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.robertomr99.atmosphere"
-        minSdk = 24
-        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
-        vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
 
         val properties = Properties()
         properties.load(project.rootProject.file("local.properties").readText().byteInputStream())
@@ -37,45 +33,31 @@ android {
             )
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
-    }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
+
     buildFeatures {
-        compose = true
         buildConfig = true
     }
 }
 
 dependencies {
-    implementation(project(":data"))
-    implementation(project(":domain"))
-    implementation(project(":usecases"))
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(project(":domain:weather"))
+    implementation(project(":domain:region"))
+    implementation(project(":framework:core"))
+    implementation(project(":framework:weather"))
+    implementation(project(":framework:region"))
+    implementation(project(":feature:home"))
+    implementation(project(":feature:detail"))
+    implementation(project(":feature:common"))
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation(libs.coil.compose)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.play.services.location)
-    implementation(libs.retrofit)
-    implementation(libs.retrofit.converter.kotlinx.serialization)
     implementation(libs.kotlinx.serialization.json)
-    implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.kotlinx.coroutines.android)
-    implementation(libs.kotlinx.coroutines.test)
-    implementation(libs.lottie.compose)
     implementation(libs.accompanist.placeholder.material)
-    implementation(libs.androidx.room.ktx)
-    implementation(libs.androidx.datastore.preferences)
-    ksp(libs.androidx.room.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
