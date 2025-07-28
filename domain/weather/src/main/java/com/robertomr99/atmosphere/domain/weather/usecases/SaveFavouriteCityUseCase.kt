@@ -4,7 +4,9 @@ import com.robertomr99.atmosphere.domain.weather.data.WeatherRepository
 import com.robertomr99.atmosphere.domain.weather.entities.ForecastResult
 import com.robertomr99.atmosphere.domain.weather.entities.WeatherResult
 import kotlinx.coroutines.flow.Flow
+import org.koin.core.annotation.Factory
 
+@Factory
 class SaveFavouriteCityUseCase(
     private val repository: WeatherRepository
 ){

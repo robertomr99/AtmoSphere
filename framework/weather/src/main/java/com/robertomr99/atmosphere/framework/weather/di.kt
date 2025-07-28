@@ -1,14 +1,8 @@
 package com.robertomr99.atmosphere.framework.weather
 
-import com.robertomr99.atmosphere.domain.weather.data.WeatherLocalDataSource
-import com.robertomr99.atmosphere.domain.weather.data.WeatherRemoteDataSource
-import com.robertomr99.atmosphere.framework.weather.database.WeatherRoomDataSource
-import com.robertomr99.atmosphere.framework.weather.network.WeatherServerDataSource
-import org.koin.core.module.dsl.factoryOf
-import org.koin.dsl.bind
-import org.koin.dsl.module
+import org.koin.core.annotation.ComponentScan
+import org.koin.core.annotation.Module
 
-val frameworkWeatherModule = module {
-    factoryOf(::WeatherRoomDataSource) bind WeatherLocalDataSource::class
-    factoryOf(::WeatherServerDataSource) bind WeatherRemoteDataSource::class
-}
+@Module
+@ComponentScan
+class FrameworkWeatherModule

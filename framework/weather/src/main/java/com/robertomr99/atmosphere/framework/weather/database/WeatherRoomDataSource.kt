@@ -7,7 +7,9 @@ import com.robertomr99.atmosphere.domain.weather.entities.WeatherEntity
 import com.robertomr99.atmosphere.domain.weather.entities.WeatherWithForecasts
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import org.koin.core.annotation.Factory
 
+@Factory
 internal class WeatherRoomDataSource(private val weatherDao: WeatherDao) :
     WeatherLocalDataSource {
 
