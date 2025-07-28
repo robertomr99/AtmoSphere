@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.ksp)
     id("robertomr99.android.application")
     id("robertomr99.android.application.compose")
+    id("robertomr99.di.library.compose")
 }
 
 android {

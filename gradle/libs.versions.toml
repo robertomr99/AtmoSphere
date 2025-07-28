@@ -22,7 +22,7 @@ coroutines = "1.8.0"
 jetbrainsKotlinJvm = "2.0.0"
 appcompat = "1.6.1"
 material = "1.10.0"
-
+koin-bom = "3.5.6"
 
 
 [libraries]
@@ -57,6 +57,9 @@ kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 kotlinx-coroutines-test =  { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+koin-bom = { group = "io.insert-koin", name = "koin-bom", version.ref = "koin-bom"}
+koin-core = { group = "io.insert-koin", name = "koin-core"}
+koin-compose = { group = "io.insert-koin", name = "koin-androidx-compose"}
 
 android-gradlePlugin = {group = "com.android.tools.build", name = "gradle", version.ref = "agp"}
 kotlin-gradlePlugin = {group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin"}
