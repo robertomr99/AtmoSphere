@@ -1,7 +1,7 @@
 package com.robertomr99.atmosphere
 
 import android.util.Log
-import com.robertomr99.atmosphere.weather.Logger
+import com.robertomr99.atmosphere.domain.weather.Logger
 
 class AndroidLogger : Logger {
     override fun v(tag: String, msg: String): Int = Log.v(tag, msg)

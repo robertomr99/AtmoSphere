@@ -1,5 +1,6 @@
 plugins {
     id("robertomr99.android.feature")
+    id("robertomr99.di.library.compose")
 }
 
 android {

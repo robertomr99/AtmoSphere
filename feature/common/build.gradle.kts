@@ -5,7 +5,3 @@ plugins {
 android {
     namespace = "com.robertomr99.atmosphere.common"
 }
-
-dependencies {
-    implementation(libs.androidx.activity.compose)
-}
