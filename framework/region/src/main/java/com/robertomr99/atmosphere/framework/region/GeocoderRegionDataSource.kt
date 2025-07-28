@@ -5,7 +5,9 @@ import com.robertomr99.atmosphere.domain.region.data.DEFAULT_REGION
 import com.robertomr99.atmosphere.domain.region.data.LocationDataSource
 import com.robertomr99.atmosphere.domain.region.data.RegionDataSource
 import com.robertomr99.atmosphere.domain.region.entities.Location
+import org.koin.core.annotation.Factory
 
+@Factory
 class GeocoderRegionDataSource(
     private val geocoder: Geocoder,
     private val locationDataSource: LocationDataSource

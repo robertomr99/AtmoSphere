@@ -2,11 +2,15 @@ package com.robertomr99.atmosphere.framework.core
 
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.robertomr99.atmosphere.domain.weather.IDataStoreManager
-import org.koin.core.module.dsl.factoryOf
+import org.koin.core.annotation.ComponentScan
+import org.koin.core.annotation.Module
 import org.koin.core.qualifier.named
-import org.koin.dsl.bind
 import org.koin.dsl.module
+
+
+@Module
+@ComponentScan
+class FrameworkCoreModule
 
 val frameworkCoreModule = module {
     single { Room
@@ -15,8 +19,6 @@ val frameworkCoreModule = module {
         .build()
     }
     factory{ get<Database>().weatherDao() }
-    factoryOf(::DataStoreManager) bind IDataStoreManager::class
     single { WeatherClient(get(named("apiKey"))).instance }
     single { GeoCodingClient(get(named("apiKey"))).instance }
-
 }

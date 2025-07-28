@@ -37,7 +37,10 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import com.robertomr99.atmosphere.feature.common.Result
+import org.koin.android.annotation.KoinViewModel
 
+
+@KoinViewModel
 class DetailViewModel(
     private val findFavCityUseCase: FindFavCityUseCase,
     private val fetchWeatherAndForecastUseCase: FetchWeatherAndForecastUseCase,

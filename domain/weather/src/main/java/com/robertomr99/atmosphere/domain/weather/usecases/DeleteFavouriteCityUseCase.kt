@@ -1,7 +1,9 @@
 package com.robertomr99.atmosphere.domain.weather.usecases
 
 import com.robertomr99.atmosphere.domain.weather.data.WeatherRepository
+import org.koin.core.annotation.Factory
 
+@Factory
 class DeleteFavouriteCityUseCase(
     private val repository: WeatherRepository
 ){

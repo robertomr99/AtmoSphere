@@ -3,7 +3,9 @@ package com.robertomr99.atmosphere.domain.weather.usecases
 import com.robertomr99.atmosphere.domain.weather.data.WeatherRepository
 import com.robertomr99.atmosphere.domain.weather.entities.CityCoordinatesResponse
 import kotlinx.coroutines.flow.Flow
+import org.koin.core.annotation.Factory
 
+@Factory
 class FetchSuggestionsForCityUseCase(
     private val repository: WeatherRepository
 ){

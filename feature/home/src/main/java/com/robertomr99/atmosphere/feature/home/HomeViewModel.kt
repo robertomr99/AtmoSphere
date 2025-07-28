@@ -29,7 +29,9 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import org.koin.android.annotation.KoinViewModel
 
+@KoinViewModel
 class HomeViewModel(
     private val fetchFavouritesCitiesUseCase: FetchFavouritesCitiesUseCase,
     private val fetchSuggestionsForCityUseCase: FetchSuggestionsForCityUseCase,

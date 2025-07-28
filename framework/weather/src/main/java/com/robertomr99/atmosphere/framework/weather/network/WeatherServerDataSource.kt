@@ -11,7 +11,9 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
+import org.koin.core.annotation.Factory
 
+@Factory
 internal class WeatherServerDataSource(
     private val geoCodingService: GeoCodingService,
     private val weatherService: WeatherService
