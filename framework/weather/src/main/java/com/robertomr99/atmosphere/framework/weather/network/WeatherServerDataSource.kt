@@ -11,10 +11,9 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
-import org.koin.core.annotation.Factory
+import javax.inject.Inject
 
-@Factory
-internal class WeatherServerDataSource(
+internal class WeatherServerDataSource @Inject constructor(
     private val geoCodingService: GeoCodingService,
     private val weatherService: WeatherService
 ) : WeatherRemoteDataSource {

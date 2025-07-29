@@ -18,7 +18,7 @@ import com.robertomr99.atmosphere.domain.weather.normalizeForecastToKelvin
 import com.robertomr99.atmosphere.domain.weather.normalizeWeatherToKelvin
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import org.koin.core.annotation.Factory
+import javax.inject.Inject
 
 const val FIFTEEN_MINUTES = 15 * 60 * 1000L
 const val KELVIN = "standard"
@@ -29,8 +29,7 @@ data class NormalizedCity(
     val displayCountry: String
 )
 
-@Factory
-class WeatherRepository(
+class WeatherRepository @Inject constructor(
     private val regionRepository: RegionRepository,
     private val weatherLocalDataSource: WeatherLocalDataSource,
     private val weatherRemoteDataSource: WeatherRemoteDataSource,

@@ -2,8 +2,7 @@ plugins {
     id("robertomr99.android.library")
     id("robertomr99.android.room")
     id("robertomr99.jvm.retrofit")
-    id("robertomr99.di.library")
-    alias(libs.plugins.ksp)
+    id("robertomr99.di.library.compose")
 }
 
 android {

@@ -51,7 +51,7 @@ import com.robertomr99.atmosphere.feature.common.AcScaffold
 import com.robertomr99.atmosphere.feature.common.NavigationState
 import com.robertomr99.atmosphere.feature.common.theme.AtmoSphereTheme
 import kotlinx.coroutines.delay
-import org.koin.androidx.compose.koinViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun Screen(content: @Composable () -> Unit) {
@@ -67,7 +67,7 @@ fun Screen(content: @Composable () -> Unit) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    vm: HomeViewModel = koinViewModel(),
+    vm: HomeViewModel = hiltViewModel(),
     onClick: (String, String) -> Unit
 ) {
     key(Unit) {

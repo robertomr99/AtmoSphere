@@ -34,6 +34,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.robertomr99.atmosphere.feature.common.AcScaffold
 import com.robertomr99.atmosphere.feature.common.NavigationState
 import com.robertomr99.atmosphere.feature.common.Result
@@ -45,7 +46,6 @@ import com.robertomr99.atmosphere.feature.detail.sections.HourlyForecastSection
 import com.robertomr99.atmosphere.feature.detail.sections.HumiditySection
 import com.robertomr99.atmosphere.feature.detail.sections.WeatherTitleSection
 import com.robertomr99.atmosphere.feature.detail.sections.WindSection
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun Screen(content: @Composable () -> Unit) {
@@ -66,7 +66,7 @@ fun DetailScreen(
     cityName: String,
     temperatureUnit: String,
     onBack: () -> Unit,
-    vm: DetailViewModel = koinViewModel()
+    vm: DetailViewModel = hiltViewModel()
 ) {
     key(cityName) {
         val stateValue by vm.state.collectAsState()

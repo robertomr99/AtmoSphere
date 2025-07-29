@@ -1,17 +1,40 @@
 package com.robertomr99.atmosphere.framework.region
 
-import android.content.Context
+import android.app.Application
 import android.location.Geocoder
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import org.koin.core.annotation.ComponentScan
-import org.koin.core.annotation.Module
-import org.koin.dsl.module
+import com.robertomr99.atmosphere.domain.region.data.LocationDataSource
+import com.robertomr99.atmosphere.domain.region.data.RegionDataSource
+import dagger.Binds
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+
 
 @Module
-@ComponentScan
-class FrameworkRegionModule
+@InstallIn(SingletonComponent::class)
+internal abstract class FrameworkRegionBindsModule {
 
-val frameworkRegionModule = module {
-    factory{ LocationServices.getFusedLocationProviderClient(get<Context>()) }
-    factory { Geocoder(get()) }
+    @Binds
+    abstract fun bindLocationDataSource(locationDataSource: PlayServicesLocationDataSource) : LocationDataSource
+
+    @Binds
+    abstract fun bindRegionDataSource(regionDataSource: GeocoderRegionDataSource) : RegionDataSource
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+internal class FrameworkRegionModule {
+
+    @Provides
+    fun provideFusedLocationProviderClient(app: Application) : FusedLocationProviderClient {
+        return LocationServices.getFusedLocationProviderClient(app)
+    }
+
+    @Provides
+    fun provideGeocoder(app: Application) : Geocoder {
+        return Geocoder(app)
+    }
 }

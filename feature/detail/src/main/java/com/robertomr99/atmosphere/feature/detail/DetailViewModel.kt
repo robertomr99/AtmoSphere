@@ -37,11 +37,12 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import com.robertomr99.atmosphere.feature.common.Result
-import org.koin.android.annotation.KoinViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
 
-@KoinViewModel
-class DetailViewModel(
+@HiltViewModel
+class DetailViewModel @Inject constructor(
     private val findFavCityUseCase: FindFavCityUseCase,
     private val fetchWeatherAndForecastUseCase: FetchWeatherAndForecastUseCase,
     private val saveFavouriteCityUseCase: SaveFavouriteCityUseCase,

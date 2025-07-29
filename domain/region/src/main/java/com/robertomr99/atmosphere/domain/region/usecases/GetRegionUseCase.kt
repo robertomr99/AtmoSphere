@@ -1,10 +1,9 @@
 package com.robertomr99.atmosphere.domain.region.usecases
 
 import com.robertomr99.atmosphere.domain.region.data.RegionDataSource
-import org.koin.core.annotation.Factory
+import javax.inject.Inject
 
-@Factory
-class GetCurrentRegionUseCase(
+class GetCurrentRegionUseCase @Inject constructor(
     private val regionDataSource: RegionDataSource
 ) {
     suspend operator fun invoke(): String {

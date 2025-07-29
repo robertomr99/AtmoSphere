@@ -3,10 +3,9 @@ package com.robertomr99.atmosphere.domain.weather.usecases
 import com.robertomr99.atmosphere.domain.weather.data.WeatherRepository
 import com.robertomr99.atmosphere.domain.weather.entities.CityCoordinatesResponse
 import kotlinx.coroutines.flow.Flow
-import org.koin.core.annotation.Factory
+import javax.inject.Inject
 
-@Factory
-class FetchSuggestionsForCityUseCase(
+class FetchSuggestionsForCityUseCase @Inject constructor(
     private val repository: WeatherRepository
 ){
     operator fun invoke(query: String): Flow<List<CityCoordinatesResponse>> = repository.getSuggestionsForCity(query)
