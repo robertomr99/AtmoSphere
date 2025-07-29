@@ -14,6 +14,7 @@ import com.robertomr99.atmosphere.domain.weather.unitsMapper
 import com.robertomr99.atmosphere.domain.weather.usecases.DeleteFavouriteCityUseCase
 import com.robertomr99.atmosphere.domain.weather.usecases.FetchFavouritesCitiesUseCase
 import com.robertomr99.atmosphere.domain.weather.usecases.FetchSuggestionsForCityUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,10 +30,10 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import org.koin.android.annotation.KoinViewModel
+import javax.inject.Inject
 
-@KoinViewModel
-class HomeViewModel(
+@HiltViewModel
+class HomeViewModel @Inject constructor(
     private val fetchFavouritesCitiesUseCase: FetchFavouritesCitiesUseCase,
     private val fetchSuggestionsForCityUseCase: FetchSuggestionsForCityUseCase,
     private val deleteFavouriteCityUseCase: DeleteFavouriteCityUseCase,

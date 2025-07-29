@@ -55,7 +55,6 @@ val popExitTransition = slideOutHorizontally(
 @Composable
 fun Navigation(){
     val navController = rememberNavController()
-    //val logger = AndroidLogger()
 
     NavHost(navController = navController, startDestination = NavScreen.Home.route){
         composable(

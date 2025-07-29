@@ -8,12 +8,14 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import androidx.datastore.preferences.preferencesDataStore
 import com.robertomr99.atmosphere.domain.weather.IDataStoreManager
-import org.koin.core.annotation.Factory
+import javax.inject.Inject
+import dagger.hilt.android.qualifiers.ApplicationContext
 
 private val Context.dataStore by preferencesDataStore("city_fetch_timestamps")
 
-@Factory
-class DataStoreManager(private val context: Context) : IDataStoreManager {
+class DataStoreManager @Inject constructor(
+    @ApplicationContext private val context: Context)
+    : IDataStoreManager {
 
     override fun keyForCity(city: String, country: String, suffix: String): Preferences.Key<Long> {
         val normalizedCity = city.trim().lowercase()
