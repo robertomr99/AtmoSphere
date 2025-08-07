@@ -51,4 +51,9 @@ internal fun Project.configureKotlinJvm() {
             jvmTarget = JavaVersion.VERSION_11.toString()
         }
     }
+
+    dependencies {
+        add("testImplementation", libs.findLibrary("junit").get())
+        add("testImplementation", libs.findLibrary("mockito.kotlin").get())
+    }
 }
