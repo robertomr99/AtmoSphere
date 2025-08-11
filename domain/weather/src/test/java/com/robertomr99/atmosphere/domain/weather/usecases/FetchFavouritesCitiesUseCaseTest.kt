@@ -1,5 +1,6 @@
 package com.robertomr99.atmosphere.domain.weather.usecases
 
+import com.robertomr99.atmosphere.sampleWeatherResultList
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.flow.flowOf
 import org.junit.Test

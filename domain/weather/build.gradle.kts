@@ -6,7 +6,7 @@ plugins {
 
 dependencies {
     implementation(project(":domain:region"))
-    implementation(libs.kotlinx.coroutines.core)
+    testImplementation(project(":test:unit"))
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.datastore.preferences)
 }
