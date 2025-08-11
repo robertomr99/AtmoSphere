@@ -1,6 +1,8 @@
 package com.robertomr99.atmosphere.domain.weather.usecases
 
 import com.robertomr99.atmosphere.domain.weather.data.WeatherRepository
+import com.robertomr99.atmosphere.sampleForecastResult
+import com.robertomr99.atmosphere.sampleWeatherResult
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import org.junit.Test

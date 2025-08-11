@@ -34,4 +34,8 @@ include(":feature:common")
 include(":feature:home")
 include(":feature:detail")
 
+// Test Module
+include(":test:unit")
+
+
 
