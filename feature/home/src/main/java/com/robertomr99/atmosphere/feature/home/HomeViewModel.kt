@@ -1,12 +1,9 @@
 package com.robertomr99.atmosphere.feature.home
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.robertomr99.atmosphere.domain.region.usecases.GetCurrentRegionUseCase
-import com.robertomr99.atmosphere.feature.common.Result
-import com.robertomr99.atmosphere.feature.common.stateAsResultIn
 import com.robertomr99.atmosphere.domain.weather.TemperatureUnit
 import com.robertomr99.atmosphere.domain.weather.entities.CityCoordinatesResponse
 import com.robertomr99.atmosphere.domain.weather.entities.WeatherResult
@@ -14,6 +11,8 @@ import com.robertomr99.atmosphere.domain.weather.unitsMapper
 import com.robertomr99.atmosphere.domain.weather.usecases.DeleteFavouriteCityUseCase
 import com.robertomr99.atmosphere.domain.weather.usecases.FetchFavouritesCitiesUseCase
 import com.robertomr99.atmosphere.domain.weather.usecases.FetchSuggestionsForCityUseCase
+import com.robertomr99.atmosphere.feature.common.Result
+import com.robertomr99.atmosphere.feature.common.stateAsResultIn
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -96,8 +95,7 @@ class HomeViewModel @Inject constructor(
             try {
                 deleteFavouriteCityUseCase(cityName, country)
                 loadFavsCitiesWeather()
-            } catch (e: Exception) {
-                Log.e("HomeViewModel", "Error removing city: ${e.message}")
+            } catch (_: Exception) {
             }
         }
     }
@@ -117,7 +115,6 @@ class HomeViewModel @Inject constructor(
                 setRegion(detectedRegion)
                 loadFavsCitiesWeather()
             } catch (e: Exception) {
-                Log.e("HomeViewModel", "Error obteniendo región: ${e.message}")
                 setRegion("ES")
                 loadFavsCitiesWeather()
             }
