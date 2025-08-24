@@ -41,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -50,8 +51,46 @@ import com.robertomr99.atmosphere.domain.weather.unitsMapper
 import com.robertomr99.atmosphere.feature.common.AcScaffold
 import com.robertomr99.atmosphere.feature.common.NavigationState
 import com.robertomr99.atmosphere.feature.common.theme.AtmoSphereTheme
+import com.robertomr99.atmosphere.feature.common.Result
 import kotlinx.coroutines.delay
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.robertomr99.atmosphere.domain.weather.TemperatureUnit
+import com.robertomr99.atmosphere.domain.weather.entities.CityCoordinatesResponse
+import com.robertomr99.atmosphere.domain.weather.entities.FavCityPreviewWeather
+
+@Composable
+fun HomeScreen(
+    vm: HomeViewModel = hiltViewModel(),
+    onClick: (String, String) -> Unit
+) {
+    val state by vm.state.collectAsState()
+    val region by vm.region.collectAsState()
+    val temperatureUnit by vm.temperatureUnit.collectAsState()
+    val errorMessage by NavigationState.cityError.collectAsState()
+    val citySuggestions by vm.citySuggestions.collectAsState()
+
+    HomeScreen(
+        state = state,
+        region = region,
+        temperatureUnit = temperatureUnit,
+        errorMessage = errorMessage,
+        citySuggestions = citySuggestions,
+        onCityClick = onClick,
+        onCityQueryChanged = vm::onCityQueryChanged,
+        onUnitSelected = vm::setTemperatureUnit,
+        onRemoveCity = { cityName, country -> vm.removeCity(cityName, country) },
+        onClearCitySuggestions = vm::clearCitySuggestions,
+        onRequestLocationPermission = { granted ->
+            if (granted) {
+                vm.requestLocationAndUpdateRegion()
+            } else {
+                vm.setRegion("ES")
+                vm.loadFavsCitiesWeather()
+            }
+        },
+        onClearError = { NavigationState.clearCityError() }
+    )
+}
 
 @Composable
 fun Screen(content: @Composable () -> Unit) {
@@ -67,17 +106,22 @@ fun Screen(content: @Composable () -> Unit) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    vm: HomeViewModel = hiltViewModel(),
-    onClick: (String, String) -> Unit
+    state: Result<List<FavCityPreviewWeather>>,
+    region: String,
+    temperatureUnit: TemperatureUnit,
+    errorMessage: String?,
+    citySuggestions: List<CityCoordinatesResponse>,
+    onCityClick: (String, String) -> Unit,
+    onCityQueryChanged: (String) -> Unit,
+    onUnitSelected: (TemperatureUnit) -> Unit,
+    onRemoveCity: (String, String) -> Unit,
+    onClearCitySuggestions: () -> Unit,
+    onRequestLocationPermission: (Boolean) -> Unit,
+    onClearError: () -> Unit
 ) {
     key(Unit) {
         val appName = stringResource(id = R.string.app_name)
-        val state by vm.state.collectAsState()
-        val region by vm.region.collectAsState()
-        val temperatureUnit by vm.temperatureUnit.collectAsState()
         val homeState = rememberHomeState(temperatureUnit = temperatureUnit)
-        val errorMessage by NavigationState.cityError.collectAsState()
-        val citySuggestions by vm.citySuggestions.collectAsState()
 
         val appBarTitle = if (region.isNotEmpty() && region != "ES") {
             "$appName $region"
@@ -86,16 +130,11 @@ fun HomeScreen(
         }
 
         homeState.ShowMessageEffect(errorMessage) {
-            NavigationState.clearCityError()
+            onClearError()
         }
 
         homeState.RequestLocationPermissionAndGetRegion { granted ->
-            if (granted) {
-                vm.requestLocationAndUpdateRegion()
-            } else {
-                vm.setRegion("ES")
-                vm.loadFavsCitiesWeather()
-            }
+            onRequestLocationPermission(granted)
         }
 
         Screen {
@@ -132,9 +171,7 @@ fun HomeScreen(
                         actions = {
                             TopBarHomeActions(
                                 homeState,
-                                onUnitSelected = {
-                                    vm.setTemperatureUnit(it)
-                                }
+                                onUnitSelected = onUnitSelected
                             )
                         }
                     )
@@ -172,15 +209,7 @@ fun HomeScreen(
                                 )
                         )
 
-                        Column(
-                            modifier = Modifier
-                                .padding(16.dp)
-                                .fillMaxWidth()
-                        ) {
-                            repeat(6) {
-                                ShimmerCityCard()
-                            }
-                        }
+                        ShimmerCityCardList()
                     }
                 },
                 errorContent = { paddingValues, errorMessage ->
@@ -229,14 +258,15 @@ fun HomeScreen(
                         city = city,
                         onCityChange = {
                             city = it
-                            vm.onCityQueryChanged(it)
+                            onCityQueryChanged(it)
                         },
                         onSearch = { suggestion ->
                             city = "${suggestion.name}, ${suggestion.country}"
-                            onClick(city,
-                                unitsMapper(vm.temperatureUnit.value)
+                            onCityClick(
+                                city,
+                                unitsMapper(temperatureUnit)
                             )
-                            vm.clearCitySuggestions()
+                            onClearCitySuggestions()
                         },
                         suggestions = citySuggestions,
                         errorMessage = errorMessage
@@ -272,16 +302,16 @@ fun HomeScreen(
                                     LaunchedEffect(!visible) {
                                         if (!visible) {
                                             delay(300)
-                                            vm.removeCity(cityWeather.name, cityWeather.country)
+                                            onRemoveCity(cityWeather.name, cityWeather.country)
                                         }
                                     }
 
                                     WeatherCardWithImageAndGradient(
                                         cityWeather = cityWeather,
                                         onClick = {
-                                            onClick(
+                                            onCityClick(
                                                 "${cityWeather.name},${cityWeather.country}",
-                                                unitsMapper(vm.temperatureUnit.value)
+                                                unitsMapper(temperatureUnit)
                                             )
                                         },
                                         onDelete = { visible = false },
@@ -292,6 +322,20 @@ fun HomeScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun ShimmerCityCardList() {
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth()
+            .testTag(SHIMMER_CITY_CARD_TAG)
+    ) {
+        repeat(6) {
+            ShimmerCityCard()
         }
     }
 }

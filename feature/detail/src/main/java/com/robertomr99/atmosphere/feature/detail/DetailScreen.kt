@@ -47,6 +47,37 @@ import com.robertomr99.atmosphere.feature.detail.sections.HumiditySection
 import com.robertomr99.atmosphere.feature.detail.sections.WeatherTitleSection
 import com.robertomr99.atmosphere.feature.detail.sections.WindSection
 
+@SuppressLint("DefaultLocale")
+@RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+@Composable
+fun DetailScreen(
+    cityName: String,
+    temperatureUnit: String,
+    onBack: () -> Unit,
+    vm: DetailViewModel = hiltViewModel()
+) {
+    val stateValue by vm.state.collectAsState()
+    val isError by NavigationState.cityError.collectAsState()
+
+    DetailScreen(
+        state = stateValue,
+        cityName = cityName,
+        displayedCityName = vm.cityName,
+        country = vm.country,
+        temperatureUnit = temperatureUnit,
+        errorMessage = isError,
+        isFavCity = when (val currentState = stateValue) {
+            is Result.Success -> currentState.data.isFavCity
+            else -> false
+        },
+        onBack = onBack,
+        onLoadCityWeather = { city, unit -> vm.loadCityWeather(city, unit) },
+        onUpdateCityFav = vm::updateCityFav,
+        onErrorDetected = onBack,
+        vm = vm
+    )
+}
+
 @Composable
 fun Screen(content: @Composable () -> Unit) {
     AtmoSphereTheme {
@@ -63,43 +94,45 @@ fun Screen(content: @Composable () -> Unit) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailScreen(
+    state: Result<DetailViewModel.WeatherData>,
     cityName: String,
+    displayedCityName: String,
+    country: String,
     temperatureUnit: String,
+    errorMessage: String?,
+    isFavCity: Boolean,
     onBack: () -> Unit,
-    vm: DetailViewModel = hiltViewModel()
+    onLoadCityWeather: (String, String) -> Unit,
+    onUpdateCityFav: (Boolean) -> Unit,
+    onErrorDetected: () -> Unit,
+    vm: DetailViewModel? = null
 ) {
     key(cityName) {
-        val stateValue by vm.state.collectAsState()
-        val isError by NavigationState.cityError.collectAsState()
-
-        LaunchedEffect(isError) {
-            if (!isError.isNullOrEmpty()) {
-                onBack()
+        LaunchedEffect(errorMessage) {
+            if (!errorMessage.isNullOrEmpty()) {
+                onErrorDetected()
             }
         }
 
         LaunchedEffect(cityName) {
             if (cityName.isNotBlank()) {
-                vm.loadCityWeather(cityName, temperatureUnit)
+                onLoadCityWeather(cityName, temperatureUnit)
             }
         }
 
         Screen {
             val detailState = rememberDetailState(
-                isFavCity = when (val currentState = stateValue) {
-                    is Result.Success -> currentState.data.isFavCity
-                    else -> false
-                }
+                isFavCity = isFavCity
             )
 
             AcScaffold(
-                state = stateValue,
+                state = state,
                 modifier = Modifier.nestedScroll(detailState.scrollBehavior.nestedScrollConnection),
                 topBar = {
                     TopAppBar(
                         title = {
                             Text(
-                                text = "${vm.cityName}, ${vm.country}",
+                                text = "$displayedCityName, $country",
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                                 fontSize = 18.sp,
@@ -123,7 +156,7 @@ fun DetailScreen(
                             TopBarDetailActions(
                                 detailState,
                                 onFavClick = { isFav ->
-                                    vm.updateCityFav(isFav)
+                                    onUpdateCityFav(isFav)
                                 }
                             )
                         }
@@ -161,7 +194,11 @@ fun DetailScreen(
                             .verticalScroll(detailState.scrollState),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        DetailScreenGroup(weatherData, vm, temperatureUnit)
+                        if (vm != null) {
+                            DetailScreenGroup(weatherData, vm, temperatureUnit)
+                        } else {
+                            DetailScreenGroup(weatherData, temperatureUnit)
+                        }
                     }
                 }
             }
@@ -203,6 +240,45 @@ private fun DetailScreenGroup(
 
     WindSection(
         wind = vm.getWindResult(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 32.dp, vertical = 16.dp)
+    )
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+private fun DetailScreenGroup(
+    weatherData: DetailViewModel.WeatherData,
+    temperatureUnit: String
+) {
+    WeatherTitleSection(weatherData.weatherResult)
+    HourlyForecastSection(emptyList())
+    DailyForecastSection(emptyList(), temperatureUnit)
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 32.dp, vertical = 16.dp)
+    ) {
+        FeelsLikeTempSection(
+            feelsLikeTemp = weatherData.weatherResult.main?.feelsLike?.toInt(),
+            modifier = Modifier
+                .weight(1f)
+                .padding(end = 4.dp)
+                .height(100.dp)
+        )
+        HumiditySection(
+            humidity = weatherData.weatherResult.main?.humidity,
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 4.dp)
+                .height(100.dp)
+        )
+    }
+
+    WindSection(
+        wind = weatherData.weatherResult.wind,
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 32.dp, vertical = 16.dp)

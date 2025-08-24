@@ -1,6 +1,7 @@
 package com.robertomr99.atmosphere
 
 import com.robertomr99.atmosphere.domain.weather.entities.CityCoordinatesResponse
+import com.robertomr99.atmosphere.domain.weather.entities.FavCityPreviewWeather
 import com.robertomr99.atmosphere.domain.weather.entities.ForecastEntity
 import com.robertomr99.atmosphere.domain.weather.entities.ForecastResult
 import com.robertomr99.atmosphere.domain.weather.entities.WeatherEntity
@@ -155,3 +156,53 @@ fun sampleWeatherWithForecasts(
         )
     }
 )
+
+fun sampleFavCityPreviewWeatherList(): List<FavCityPreviewWeather> {
+    return listOf(
+        FavCityPreviewWeather(
+            name = "Ciudad 1",
+            country = "ES",
+            weatherId = 800,
+            temp = "22",
+            minTemp = "18",
+            maxTemp = "25",
+            description = "Cielo despejado"
+        ),
+        FavCityPreviewWeather(
+            name = "Ciudad 2",
+            country = "GB",
+            weatherId = 500,
+            temp = "15",
+            minTemp = "12",
+            maxTemp = "18",
+            description = "Lluvia ligera"
+        ),
+        FavCityPreviewWeather(
+            name = "Ciudad 3",
+            country = "US",
+            weatherId = 801,
+            temp = "20",
+            minTemp = "16",
+            maxTemp = "24",
+            description = "Pocas nubes"
+        ),
+        FavCityPreviewWeather(
+            name = "Ciudad 4",
+            country = "JP",
+            weatherId = 802,
+            temp = "18",
+            minTemp = "14",
+            maxTemp = "21",
+            description = "Nubes dispersas"
+        ),
+        FavCityPreviewWeather(
+            name = "Ciudad 5",
+            country = "FR",
+            weatherId = 600,
+            temp = "2",
+            minTemp = "-1",
+            maxTemp = "5",
+            description = "Nieve"
+        )
+    )
+}
