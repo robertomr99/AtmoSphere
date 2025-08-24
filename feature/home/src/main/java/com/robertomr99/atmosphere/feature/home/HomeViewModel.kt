@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.robertomr99.atmosphere.domain.region.usecases.GetCurrentRegionUseCase
 import com.robertomr99.atmosphere.domain.weather.TemperatureUnit
 import com.robertomr99.atmosphere.domain.weather.entities.CityCoordinatesResponse
+import com.robertomr99.atmosphere.domain.weather.entities.FavCityPreviewWeather
 import com.robertomr99.atmosphere.domain.weather.entities.WeatherResult
 import com.robertomr99.atmosphere.domain.weather.unitsMapper
 import com.robertomr99.atmosphere.domain.weather.usecases.DeleteFavouriteCityUseCase
@@ -124,16 +125,6 @@ class HomeViewModel @Inject constructor(
     fun setRegion(regionResult : String){
         _region.value = regionResult
     }
-
-    data class FavCityPreviewWeather(
-        val name: String,
-        val country: String,
-        val weatherId: Int,
-        val temp: String,
-        val minTemp: String,
-        val maxTemp: String,
-        val description: String
-    )
 
     @SuppressLint("DefaultLocale")
     private fun favCityPreviewWeatherMapper(

@@ -23,8 +23,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+
+const val SHIMMER_CITY_DETAIL_TAG = "shimmerCityDetail"
 
 @Composable
 fun ShimmerCityDetail() {
@@ -50,7 +53,8 @@ fun ShimmerCityDetail() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 130.dp, start = 16.dp, end = 16.dp),
+            .padding(top = 130.dp, start = 16.dp, end = 16.dp)
+            .testTag(SHIMMER_CITY_DETAIL_TAG),
 
     ) {
         Column(modifier = Modifier.fillMaxWidth(),
