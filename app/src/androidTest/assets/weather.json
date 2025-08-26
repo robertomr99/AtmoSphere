@@ -1,0 +1,49 @@
+{
+  "coord": {
+    "lon": -5.9845,
+    "lat": 37.3886
+  },
+  "weather": [
+    {
+      "id": 800,
+      "main": "Clear",
+      "description": "despejado",
+      "icon": "01d"
+    }
+  ],
+  "base": "stations",
+  "main": {
+    "temp": 22.5,
+    "feels_like": 23.1,
+    "temp_min": 19.8,
+    "temp_max": 25.2,
+    "pressure": 1013,
+    "humidity": 65,
+    "sea_level": 1013,
+    "grnd_level": 1008
+  },
+  "visibility": 10000,
+  "wind": {
+    "speed": 3.2,
+    "deg": 240,
+    "gust": 5.8
+  },
+  "clouds": {
+    "all": 5
+  },
+  "dt": 1698765432,
+  "sys": {
+    "type": 2,
+    "id": 2007649,
+    "country": "ES",
+    "sunrise": 1698739200,
+    "sunset": 1698778800
+  },
+  "timezone": 3600,
+  "id": 2510911,
+  "name": "Sevilla",
+  "cod": 200,
+  "snow": {
+    "1h": 0
+  }
+}

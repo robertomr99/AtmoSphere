@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -184,9 +185,8 @@ fun SearchFieldWithVoice(
                     .padding(horizontal = 16.dp),
             ) {
                 suggestions.forEach { suggestion ->
-                    DropdownMenuItem(
-                        text = {
-                            Column{
+                    DropdownMenuItem(text = {
+                            Column {
                                 Text(
                                     text = "${suggestion.name}, ${suggestion.country}",
                                     color = Color.Black,
@@ -200,12 +200,14 @@ fun SearchFieldWithVoice(
                                     )
                                 }
                             }
-                        },
-                        onClick = {
+                        }, onClick = {
                             expanded = false
                             onSearch(suggestion)
-                        },
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                        }, modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                            .testTag("Suggestion_${suggestion.name}_${suggestion.country}_${suggestion.state.orEmpty()}")
+
                     )
                 }
             }

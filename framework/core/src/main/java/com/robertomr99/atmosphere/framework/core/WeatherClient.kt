@@ -12,7 +12,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import retrofit2.create
 
-internal class WeatherClient(private val apikey: String){
+internal class WeatherClient(private val apikey: String, apiWeatherUrl: String){
 
     private val json = Json {
         ignoreUnknownKeys = true
@@ -24,7 +24,7 @@ internal class WeatherClient(private val apikey: String){
         .build()
 
     val instance = Retrofit.Builder()
-        .baseUrl("https://api.openweathermap.org/data/2.5/")
+        .baseUrl(apiWeatherUrl)
         .client(okHttpClient)
         .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
         .build()
