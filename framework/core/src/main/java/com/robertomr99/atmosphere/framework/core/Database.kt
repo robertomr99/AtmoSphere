@@ -11,6 +11,6 @@ import com.robertomr99.atmosphere.framework.weather.database.WeatherDao
     version = 1,
     exportSchema = false
 )
-internal abstract class Database : RoomDatabase() {
+abstract class Database : RoomDatabase() {
     abstract fun weatherDao(): WeatherDao
 }

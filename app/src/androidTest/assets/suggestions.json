@@ -1,0 +1,37 @@
+[
+  {
+    "name": "Sevilla",
+    "lat": 37.3886,
+    "lon": -5.9845,
+    "country": "ES",
+    "state": "Andalusia"
+  },
+  {
+    "name": "Seville",
+    "lat": 39.5959,
+    "lon": -76.6958,
+    "country": "US",
+    "state": "Maryland"
+  },
+  {
+    "name": "Sevilla",
+    "lat": 37.9689,
+    "lon": -5.1328,
+    "country": "ES",
+    "state": "Córdoba"
+  },
+  {
+    "name": "Seville",
+    "lat": 32.3587,
+    "lon": -83.5391,
+    "country": "US",
+    "state": "Georgia"
+  },
+  {
+    "name": "Sevilla",
+    "lat": 10.9044,
+    "lon": -74.0584,
+    "country": "CO",
+    "state": "Magdalena"
+  }
+]

@@ -16,24 +16,44 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 internal object FrameworkCoreModule {
-
-    @Provides
-    @Singleton
-    fun provideDatabase(app: Application) = Room
-        .databaseBuilder(app, Database::class.java, "db")
-        .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
-        .build()
-
     @Provides
     fun providesWeatherDao(database: Database) = database.weatherDao()
 
     @Provides
     @Singleton
-    fun providesWeatherClient(@Named("apiKey") apiKey: String) = WeatherClient(apiKey).instance
+    fun providesWeatherClient(
+        @Named("apiKey") apiKey: String,
+        @Named("apiWeatherUrl") apiWeatherUrl: String
+    ) = WeatherClient(apiKey, apiWeatherUrl).instance
 
     @Provides
     @Singleton
-    fun providesGeoCodingClient(@Named("apiKey") apiKey: String) = GeoCodingClient(apiKey).instance
+    fun providesGeoCodingClient(
+        @Named("apiKey") apiKey: String,
+        @Named("apiGeocodingUrl") apiGeocodingUrl: String
+    ) = GeoCodingClient(apiKey, apiGeocodingUrl).instance
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+object FrameworkCoreExtrasModule {
+    @Provides
+    @Singleton
+    fun providesDatabase(app: Application) = Room
+        .databaseBuilder(app, Database::class.java, "db")
+        .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
+        .build()
+
+
+    @Provides
+    @Singleton
+    @Named("apiWeatherUrl")
+    fun providesApiWeatherUrl(): String = "https://api.openweathermap.org/data/2.5/"
+
+    @Provides
+    @Singleton
+    @Named("apiGeocodingUrl")
+    fun providesApiGeocodingUrl(): String = "https://api.openweathermap.org/geo/1.0/"
 }
 
 @Module

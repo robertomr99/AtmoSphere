@@ -30,6 +30,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -136,6 +139,7 @@ fun DetailScreen(
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                                 fontSize = 18.sp,
+                                modifier = Modifier.testTag("CityDetailTitle")
                             )
                         },
                         scrollBehavior = detailState.scrollBehavior,
@@ -145,10 +149,13 @@ fun DetailScreen(
                             navigationIconContentColor = Color.White
                         ),
                         navigationIcon = {
-                            IconButton(onClick = onBack) {
+                            IconButton(
+                                onClick = onBack,
+                                modifier = Modifier.semantics { testTag = "BackButton" }
+                            ) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                                    contentDescription = "Back"
+                                    contentDescription = "BackButton"
                                 )
                             }
                         },
