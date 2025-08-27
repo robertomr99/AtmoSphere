@@ -156,23 +156,6 @@ AtmoSphere/
 ### Detalles del Clima (Sensación, Humedad y Viento)
 <img src="screenshots/DetailScreenWind.png" style="width: 300px;" alt="Sensación, Humedad y Viento"/>
 
-</div>
-
-### 📱 Vista en grid de funcionalidades
-
-<div style="text-align: center;">
-
-|                         Pantalla Principal                          |                                 Búsqueda                                  |                                 Unidades                                 |
-|:-------------------------------------------------------------------:|:-------------------------------------------------------------------------:|:------------------------------------------------------------------------:|
-| <img src="screenshots/HomeScreen_thumb.png" style="width: 200px;"/> | <img src="screenshots/HomeScreenSearch_thumb.png" style="width: 200px;"/> | <img src="screenshots/HomeScreenUnits_thumb.png" style="width: 200px;"/> |
-
-|                              Detalles Clima                               |                              Viento y Datos                               |
-|:-------------------------------------------------------------------------:|:-------------------------------------------------------------------------:|
-| <img src="screenshots/DetailScreenSnow_thumb.png" style="width: 250px;"/> | <img src="screenshots/DetailScreenWind_thumb.png" style="width: 250px;"/> |
-
-</div>
-
-
 ## 🚀 Funcionalidades destacadas
 
 ### Animaciones dinámicas
