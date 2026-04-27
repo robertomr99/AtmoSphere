@@ -180,7 +180,7 @@ fun DetailScreen(
                     ) {
                         Text(
                             text = "Error al cargar los datos del clima: $errorMessage",
-                            color = Color.Blue,
+                            color = Color.White,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.padding(16.dp)
                         )
